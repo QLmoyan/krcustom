@@ -1086,3 +1086,47 @@ on conflict (id) do update set
   read_at = excluded.read_at,
   demo_key = excluded.demo_key,
   created_at = excluded.created_at;
+
+-- ---------------------------------------------------------------------------
+-- Sprint 10: announcements (admin console)
+-- ---------------------------------------------------------------------------
+
+insert into public.announcements (
+  id,
+  title,
+  body,
+  published_at,
+  demo_key,
+  created_at
+)
+values
+  (
+    '61111111-1111-4111-8111-111111111111',
+    '커스텀코리아 베타 오픈 안내',
+    '견적·시안·고객 소지품 커스텀 워크플로를 데모로 체험해 보세요.',
+    '2026-07-01 10:00:00+09',
+    'ann-001',
+    '2026-07-01 10:00:00+09'
+  ),
+  (
+    '61111111-1111-4111-8111-111111111112',
+    '판매자 센터 대시보드 개선',
+    '대기 견적·시안·제작·발송 지표와 최신 알림을 한곳에서 확인합니다.',
+    '2026-07-15 09:30:00+09',
+    'ann-002',
+    '2026-07-15 09:30:00+09'
+  ),
+  (
+    '61111111-1111-4111-8111-111111111113',
+    '고객 소지품 라벨 가이드',
+    '입고 시 물품번호·주문자명·연락처를 교차 확인해 주세요.',
+    '2026-07-20 14:00:00+09',
+    'ann-003',
+    '2026-07-20 14:00:00+09'
+  )
+on conflict (id) do update set
+  title = excluded.title,
+  body = excluded.body,
+  published_at = excluded.published_at,
+  demo_key = excluded.demo_key,
+  created_at = excluded.created_at;

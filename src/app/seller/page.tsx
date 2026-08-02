@@ -1,5 +1,6 @@
 import { ProductionBoard } from "@/components/seller/ProductionBoard";
 import { SellerLayout } from "@/components/seller/SellerLayout";
+import { SellerLatestNotifications } from "@/components/seller/SellerLatestNotifications";
 import { SellerOrderTable } from "@/components/seller/SellerOrderTable";
 import { SellerQuickActions } from "@/components/seller/SellerQuickActions";
 import { SellerRecentMessages } from "@/components/seller/SellerRecentMessages";
@@ -11,9 +12,9 @@ import {
   type SellerRecentOrder,
 } from "@/data/mockSellerDashboard";
 import { DEMO } from "@/data/demoFlow";
-import { listConversations } from "@/lib/providers/chatProvider";
 import { getUnreadNotificationCount } from "@/lib/providers/notificationProvider";
 import { listProjects } from "@/lib/providers/projectProvider";
+import { getSellerDashboardSnapshot } from "@/lib/providers/sellerDashboardProvider";
 import type { ProjectRow } from "@/types/database";
 import { ko } from "@/messages";
 
@@ -32,8 +33,8 @@ function mapProjectToRecentOrder(project: ProjectRow): SellerRecentOrder {
 
 export default async function SellerDashboardPage() {
   const data = mockSellerDashboard;
+  const snapshot = await getSellerDashboardSnapshot();
   const { projects, source } = await listProjects();
-  const { conversations, source: chatSource } = await listConversations();
   const { count: unreadNotificationCount } =
     await getUnreadNotificationCount();
 
@@ -42,25 +43,16 @@ export default async function SellerDashboardPage() {
     projects.length === 1 &&
     projects[0]?.demo_key === DEMO.projectId;
 
-  // Provider-backed list; keep Alpha Demo table when only seeded prj-001 exists.
   const recentOrders =
     source === "supabase" && !onlyDemoSeed
       ? projects.map(mapProjectToRecentOrder)
       : data.recentOrders;
 
-  // Prefer Supabase conversation list; keep multi-row mock when only demo seed.
-  const recentMessages =
-    chatSource === "supabase" && conversations.length > 1
-      ? conversations
-      : chatSource === "supabase" && conversations.length === 1
-        ? conversations
-        : data.recentMessages;
-
   return (
     <SellerLayout
       title={ko.seller.dashboardTitle}
-      storeName={data.storeName}
-      sellerName={data.sellerName}
+      storeName={snapshot.storeName}
+      sellerName={snapshot.sellerName}
       unreadNotificationCount={unreadNotificationCount}
     >
       <NotificationRealtimeRefresh channelKey="seller-notifications" />
@@ -76,7 +68,7 @@ export default async function SellerDashboardPage() {
             {ko.seller.statsSection}
           </h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-            {data.stats.map((stat) => (
+            {snapshot.stats.map((stat) => (
               <SellerStatCard key={stat.id} stat={stat} />
             ))}
           </div>
@@ -85,9 +77,13 @@ export default async function SellerDashboardPage() {
         <SellerQuickActions />
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <SellerTaskList todos={data.todos} />
-          <SellerRecentMessages messages={recentMessages} />
+          <SellerTaskList todos={snapshot.todos} />
+          <SellerRecentMessages messages={snapshot.recentMessages} />
         </div>
+
+        <SellerLatestNotifications
+          notifications={snapshot.recentNotifications}
+        />
 
         <ProductionBoard columns={data.productionBoard} />
 

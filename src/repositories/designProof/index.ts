@@ -313,6 +313,36 @@ export async function createVersion(
   return full;
 }
 
+/**
+ * In-place status change for workflow transitions.
+ */
+export async function updateStatus(
+  identifier: string,
+  status: string,
+): Promise<DesignProofWithVersions> {
+  const existing = await getById(identifier);
+  if (!existing) {
+    throw new Error(`Design proof not found: ${identifier}`);
+  }
+
+  const supabase = await createClient();
+  const patch: DesignProofUpdate = { status };
+  const { error } = await supabase
+    .from("design_proofs")
+    .update(patch)
+    .eq("id", existing.id);
+
+  if (error) {
+    throw error;
+  }
+
+  const full = await getById(existing.id);
+  if (!full) {
+    throw new Error("Updated design proof could not be reloaded");
+  }
+  return full;
+}
+
 export async function approve(
   identifier: string,
   customerComment?: string,

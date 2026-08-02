@@ -104,11 +104,16 @@ export async function updateProject(
   id: string,
   input: ProjectUpdate,
 ): Promise<ProjectRow> {
+  const existing = await getProjectById(id);
+  if (!existing) {
+    throw new Error(`Project not found: ${id}`);
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("projects")
     .update(input)
-    .eq("id", id)
+    .eq("id", existing.id)
     .select("*")
     .single();
 

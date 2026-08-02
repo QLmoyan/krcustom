@@ -195,3 +195,34 @@ export async function markAllNotificationsRead(options?: {
     return { count: 0, source: "mock" };
   }
 }
+
+export type CreateNotificationInput = {
+  userId?: string | null;
+  type: NotificationTypeCode | string;
+  title: string;
+  body?: string;
+  linkPath?: string | null;
+  entityType?: string | null;
+  entityId?: string | null;
+  demoKey?: string | null;
+};
+
+export async function createNotification(
+  input: CreateNotificationInput,
+): Promise<{ notification: AppNotification | null; source: NotificationDataSource }> {
+  try {
+    const row = await notificationRepository.createNotification({
+      user_id: input.userId ?? null,
+      type: input.type,
+      title: input.title,
+      body: input.body ?? "",
+      link_path: input.linkPath ?? null,
+      entity_type: input.entityType ?? null,
+      entity_id: input.entityId ?? null,
+      demo_key: input.demoKey ?? null,
+    });
+    return { notification: mapRowToNotification(row), source: "supabase" };
+  } catch {
+    return { notification: null, source: "mock" };
+  }
+}

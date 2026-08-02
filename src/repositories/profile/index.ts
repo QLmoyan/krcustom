@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { mapProfileRow } from "@/repositories/profile/map";
 import type { AppProfile } from "@/types/Auth";
-import type { ProfileRow, ProfileUpdate } from "@/types/database";
+import type { ProfileRow, ProfileUpdate, UserRoleEnum } from "@/types/database";
 
 export async function getById(id: string): Promise<AppProfile | null> {
   const supabase = await createClient();
@@ -40,6 +40,27 @@ export async function getByDemoKey(
   }
 
   return data ? mapProfileRow(data as ProfileRow) : null;
+}
+
+export async function listProfiles(options?: {
+  role?: UserRoleEnum;
+}): Promise<AppProfile[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("profiles")
+    .select("*")
+    .order("updated_at", { ascending: false });
+
+  if (options?.role) {
+    query = query.eq("role", options.role);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => mapProfileRow(row as ProfileRow));
 }
 
 export async function updateOwn(

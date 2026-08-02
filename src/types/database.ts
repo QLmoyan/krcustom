@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -12,8 +12,60 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.15"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          body: string
+          created_at: string
+          demo_key: string | null
+          id: string
+          published_at: string | null
+          title: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          published_at?: string | null
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          published_at?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -943,6 +995,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       user_role: ["CUSTOMER", "SELLER", "ADMIN"],
@@ -1013,3 +1068,8 @@ export type MessageUpdate = TablesUpdate<"messages">;
 export type NotificationRow = Tables<"notifications">;
 export type NotificationInsert = TablesInsert<"notifications">;
 export type NotificationUpdate = TablesUpdate<"notifications">;
+
+/** Announcement table aliases for app code */
+export type AnnouncementRow = Tables<"announcements">;
+export type AnnouncementInsert = TablesInsert<"announcements">;
+export type AnnouncementUpdate = TablesUpdate<"announcements">;

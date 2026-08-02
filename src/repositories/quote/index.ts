@@ -7,6 +7,7 @@ import type {
   QuoteRevisionInsert,
   QuoteRevisionRow,
   QuoteRow,
+  QuoteUpdate,
 } from "@/types/database";
 
 export { isProjectUuid as isQuoteUuid };
@@ -295,6 +296,35 @@ export async function create(
     throw new Error("Created quote could not be reloaded");
   }
   return full;
+}
+
+/**
+ * In-place status change for workflow transitions (does not create a new version).
+ */
+export async function updateStatus(
+  identifier: string,
+  status: string,
+): Promise<QuoteWithRelations> {
+  const existing = await getById(identifier);
+  if (!existing) {
+    throw new Error(`Quote not found: ${identifier}`);
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("quotes")
+    .update({ status } satisfies QuoteUpdate)
+    .eq("id", existing.id);
+
+  if (error) {
+    throw error;
+  }
+
+  const updated = await getById(existing.id);
+  if (!updated) {
+    throw new Error("Updated quote could not be reloaded");
+  }
+  return updated;
 }
 
 /**
