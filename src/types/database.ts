@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -39,6 +39,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      customer_owned_items: {
+        Row: {
+          brand: string
+          category: string
+          color: string
+          condition: string
+          created_at: string
+          customer_id: string
+          demo_key: string | null
+          id: string
+          item_number: string
+          name: string
+          notes: string
+          photos: Json
+          project_id: string
+          quantity: number
+          received_at: string | null
+          size: string
+          status: string
+          tracking_company: string
+          tracking_number: string
+          updated_at: string
+        }
+        Insert: {
+          brand?: string
+          category: string
+          color?: string
+          condition?: string
+          created_at?: string
+          customer_id: string
+          demo_key?: string | null
+          id?: string
+          item_number: string
+          name: string
+          notes?: string
+          photos?: Json
+          project_id: string
+          quantity?: number
+          received_at?: string | null
+          size?: string
+          status: string
+          tracking_company?: string
+          tracking_number?: string
+          updated_at?: string
+        }
+        Update: {
+          brand?: string
+          category?: string
+          color?: string
+          condition?: string
+          created_at?: string
+          customer_id?: string
+          demo_key?: string | null
+          id?: string
+          item_number?: string
+          name?: string
+          notes?: string
+          photos?: Json
+          project_id?: string
+          quantity?: number
+          received_at?: string | null
+          size?: string
+          status?: string
+          tracking_company?: string
+          tracking_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_owned_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       design_proof_versions: {
         Row: {
           created_at: string
@@ -512,6 +589,62 @@ export type Database = {
           },
         ]
       }
+      timeline_events: {
+        Row: {
+          actor_id: string | null
+          actor_name: string
+          actor_type: string
+          created_at: string
+          demo_key: string | null
+          description: string
+          event_type: string
+          id: string
+          metadata: Json
+          occurred_at: string | null
+          project_id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_name?: string
+          actor_type?: string
+          created_at?: string
+          demo_key?: string | null
+          description?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string | null
+          project_id: string
+          status?: string
+          title: string
+        }
+        Update: {
+          actor_id?: string | null
+          actor_name?: string
+          actor_type?: string
+          created_at?: string
+          demo_key?: string | null
+          description?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string | null
+          project_id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timeline_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -653,7 +786,6 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
 /** Project table aliases for app code */
 export type ProjectRow = Tables<"projects">;
 export type ProjectInsert = TablesInsert<"projects">;
@@ -688,3 +820,13 @@ export type OrderItemUpdate = TablesUpdate<"order_items">;
 export type PaymentRecordRow = Tables<"payment_records">;
 export type PaymentRecordInsert = TablesInsert<"payment_records">;
 export type PaymentRecordUpdate = TablesUpdate<"payment_records">;
+
+/** Customer owned item table aliases for app code */
+export type CustomerOwnedItemRow = Tables<"customer_owned_items">;
+export type CustomerOwnedItemInsert = TablesInsert<"customer_owned_items">;
+export type CustomerOwnedItemUpdate = TablesUpdate<"customer_owned_items">;
+
+/** Timeline event table aliases for app code */
+export type TimelineEventRow = Tables<"timeline_events">;
+export type TimelineEventInsert = TablesInsert<"timeline_events">;
+export type TimelineEventUpdate = TablesUpdate<"timeline_events">;

@@ -38,17 +38,23 @@ const statusOptions: { value: "" | OwnedItemLifecycleStatus; label: string }[] =
     })),
   ];
 
-export function CustomerOwnedItemListView() {
+type CustomerOwnedItemListViewProps = {
+  items?: CustomerOwnedItem[];
+};
+
+export function CustomerOwnedItemListView({
+  items = mockCustomerOwnedItems,
+}: CustomerOwnedItemListViewProps) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"" | OwnedItemLifecycleStatus>("");
   const [itemType, setItemType] = useState<"" | OwnedItemType>("");
   const [anomaly, setAnomaly] = useState<"all" | "yes" | "no">("all");
 
-  const stats = getOwnedItemStats(mockCustomerOwnedItems);
+  const stats = getOwnedItemStats(items);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return mockCustomerOwnedItems.filter((item) => {
+    return items.filter((item) => {
       if (status && item.lifecycleStatus !== status) return false;
       if (itemType && item.itemType !== itemType) return false;
       if (anomaly === "yes" && !item.isAnomaly) return false;
@@ -62,7 +68,7 @@ export function CustomerOwnedItemListView() {
         item.trackingNumber.toLowerCase().includes(q)
       );
     });
-  }, [anomaly, itemType, query, status]);
+  }, [anomaly, itemType, items, query, status]);
 
   return (
     <div className="mx-auto w-full max-w-[1280px] space-y-4">

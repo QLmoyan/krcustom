@@ -1,6 +1,7 @@
--- Sprint 7 Phase 2 + Phase 3 + Phase 4 + Phase 5 seed
+-- Sprint 7 Phase 2 + Phase 3 + Phase 4 + Phase 5 + Phase 6 seed
 -- Project: id = UUID PK; demo_key = frontend route key (prj-001)
 -- Quotes: V1/V2/V3 for prj-001; demo_key = frontend quote ids; final total = 64800
+-- Customer owned item: Nike white sneakers (demo_key coi-003) + full timeline
 -- Design proofs: V1/V2/V3 for prj-001; V3 status CONFIRMED (Approved)
 -- Orders: ord-001 for prj-001; order_number ORD-20260802-001; total 64800;
 --   status COMPLETED, payment PAID, production FINISHED, shipping DELIVERED
@@ -418,3 +419,271 @@ on conflict (id) do update set
   demo_key = excluded.demo_key,
   created_at = excluded.created_at,
   updated_at = excluded.updated_at;
+
+-- ---------------------------------------------------------------------------
+-- Customer owned item (prj-001 / coi-003) — Nike white sneakers
+-- ---------------------------------------------------------------------------
+
+insert into public.customer_owned_items (
+  id,
+  project_id,
+  customer_id,
+  item_number,
+  category,
+  name,
+  brand,
+  color,
+  size,
+  condition,
+  quantity,
+  tracking_company,
+  tracking_number,
+  received_at,
+  notes,
+  photos,
+  status,
+  demo_key,
+  created_at,
+  updated_at
+)
+values (
+  'a1111111-1111-4111-8111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
+  '33333333-3333-4333-8333-333333333333',
+  'ITEM-20260715-001',
+  'sneakers',
+  '나이키 화이트 스니커즈',
+  '나이키',
+  '화이트',
+  '270',
+  '기록 전',
+  1,
+  'CJ대한통운',
+  '1234-5678-9012',
+  null,
+  '판매자 수령 대기 중입니다. 수령 후 개봉 사진을 등록합니다.',
+  '["https://picsum.photos/seed/coi-003-nike-1/320/320","https://picsum.photos/seed/coi-003-nike-2/320/320"]'::jsonb,
+  'CUSTOMER_SHIPPED',
+  'coi-003',
+  '2026-07-12 18:00:00+09',
+  '2026-07-15 08:40:00+09'
+)
+on conflict (id) do update set
+  project_id = excluded.project_id,
+  customer_id = excluded.customer_id,
+  item_number = excluded.item_number,
+  category = excluded.category,
+  name = excluded.name,
+  brand = excluded.brand,
+  color = excluded.color,
+  size = excluded.size,
+  condition = excluded.condition,
+  quantity = excluded.quantity,
+  tracking_company = excluded.tracking_company,
+  tracking_number = excluded.tracking_number,
+  received_at = excluded.received_at,
+  notes = excluded.notes,
+  photos = excluded.photos,
+  status = excluded.status,
+  demo_key = excluded.demo_key,
+  created_at = excluded.created_at,
+  updated_at = excluded.updated_at;
+
+-- ---------------------------------------------------------------------------
+-- Timeline events (prj-001) — full custom-service lifecycle
+-- ---------------------------------------------------------------------------
+
+insert into public.timeline_events (
+  id,
+  project_id,
+  event_type,
+  title,
+  description,
+  status,
+  actor_type,
+  actor_id,
+  actor_name,
+  occurred_at,
+  metadata,
+  demo_key,
+  created_at
+)
+values
+  (
+    'b1111111-1111-4111-8111-111111111101',
+    '11111111-1111-4111-8111-111111111111',
+    'PROJECT_CREATED',
+    '프로젝트 생성',
+    '고객 소지품 커스텀 프로젝트가 생성되었습니다.',
+    'COMPLETED',
+    'SYSTEM',
+    null,
+    '시스템',
+    '2026-07-11 10:00:00+09',
+    '{}'::jsonb,
+    'tl-prj001-01',
+    '2026-07-11 10:00:00+09'
+  ),
+  (
+    'b1111111-1111-4111-8111-111111111102',
+    '11111111-1111-4111-8111-111111111111',
+    'QUOTE_SENT',
+    '견적 발송',
+    '견적서 QT-20260712-008가 고객에게 발송되었습니다.',
+    'COMPLETED',
+    'SELLER',
+    '44444444-4444-4444-8444-444444444444',
+    '스티치하우스',
+    '2026-07-11 14:20:00+09',
+    '{}'::jsonb,
+    'tl-prj001-02',
+    '2026-07-11 14:20:00+09'
+  ),
+  (
+    'b1111111-1111-4111-8111-111111111103',
+    '11111111-1111-4111-8111-111111111111',
+    'QUOTE_ACCEPTED',
+    '견적 수락',
+    '고객이 견적 V3를 수락했습니다.',
+    'COMPLETED',
+    'CUSTOMER',
+    '33333333-3333-4333-8333-333333333333',
+    '이서연',
+    '2026-07-12 17:20:00+09',
+    '{}'::jsonb,
+    'tl-prj001-03',
+    '2026-07-12 17:20:00+09'
+  ),
+  (
+    'b1111111-1111-4111-8111-111111111104',
+    '11111111-1111-4111-8111-111111111111',
+    'DESIGN_UPLOADED',
+    '시안 업로드',
+    '판매자가 시안을 업로드했습니다.',
+    'COMPLETED',
+    'SELLER',
+    '44444444-4444-4444-8444-444444444444',
+    '스티치하우스',
+    '2026-07-12 16:40:00+09',
+    '{}'::jsonb,
+    'tl-prj001-04',
+    '2026-07-12 16:40:00+09'
+  ),
+  (
+    'b1111111-1111-4111-8111-111111111105',
+    '11111111-1111-4111-8111-111111111111',
+    'DESIGN_APPROVED',
+    '시안 확정',
+    '고객이 시안을 확정했습니다.',
+    'COMPLETED',
+    'CUSTOMER',
+    '33333333-3333-4333-8333-333333333333',
+    '이서연',
+    '2026-07-12 17:05:00+09',
+    '{}'::jsonb,
+    'tl-prj001-05',
+    '2026-07-12 17:05:00+09'
+  ),
+  (
+    'b1111111-1111-4111-8111-111111111106',
+    '11111111-1111-4111-8111-111111111111',
+    'ORDER_CREATED',
+    '주문 생성',
+    '결제 완료 후 주문이 생성되었습니다. (64,800원)',
+    'COMPLETED',
+    'SYSTEM',
+    null,
+    '시스템',
+    '2026-07-12 17:28:00+09',
+    '{}'::jsonb,
+    'tl-prj001-06',
+    '2026-07-12 17:28:00+09'
+  ),
+  (
+    'b1111111-1111-4111-8111-111111111107',
+    '11111111-1111-4111-8111-111111111111',
+    'ITEM_RECEIVED',
+    '물품 수령',
+    '판매자가 나이키 화이트 스니커즈 수령을 확인했습니다.',
+    'COMPLETED',
+    'SELLER',
+    '44444444-4444-4444-8444-444444444444',
+    '스티치하우스',
+    '2026-07-15 14:00:00+09',
+    '{}'::jsonb,
+    'tl-prj001-07',
+    '2026-07-15 14:00:00+09'
+  ),
+  (
+    'b1111111-1111-4111-8111-111111111108',
+    '11111111-1111-4111-8111-111111111111',
+    'PRODUCTION_STARTED',
+    '제작 시작',
+    '자수 제작이 시작되었습니다.',
+    'COMPLETED',
+    'SELLER',
+    '44444444-4444-4444-8444-444444444444',
+    '스티치하우스',
+    '2026-07-16 09:00:00+09',
+    '{}'::jsonb,
+    'tl-prj001-08',
+    '2026-07-16 09:00:00+09'
+  ),
+  (
+    'b1111111-1111-4111-8111-111111111109',
+    '11111111-1111-4111-8111-111111111111',
+    'QC_FINISHED',
+    '검수 완료',
+    '제작 후 품질 검수가 완료되었습니다.',
+    'COMPLETED',
+    'SELLER',
+    '44444444-4444-4444-8444-444444444444',
+    '스티치하우스',
+    '2026-07-17 11:30:00+09',
+    '{}'::jsonb,
+    'tl-prj001-09',
+    '2026-07-17 11:30:00+09'
+  ),
+  (
+    'b1111111-1111-4111-8111-111111111110',
+    '11111111-1111-4111-8111-111111111111',
+    'SHIPPED',
+    '반송 발송',
+    '완성품이 고객에게 반송 발송되었습니다.',
+    'COMPLETED',
+    'SELLER',
+    '44444444-4444-4444-8444-444444444444',
+    '스티치하우스',
+    '2026-07-17 15:00:00+09',
+    '{}'::jsonb,
+    'tl-prj001-10',
+    '2026-07-17 15:00:00+09'
+  ),
+  (
+    'b1111111-1111-4111-8111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
+    'DELIVERED',
+    '배송 완료',
+    '고객에게 배송이 완료되었습니다.',
+    'CURRENT',
+    'SYSTEM',
+    null,
+    '시스템',
+    '2026-07-18 10:20:00+09',
+    '{}'::jsonb,
+    'tl-prj001-11',
+    '2026-07-18 10:20:00+09'
+  )
+on conflict (id) do update set
+  project_id = excluded.project_id,
+  event_type = excluded.event_type,
+  title = excluded.title,
+  description = excluded.description,
+  status = excluded.status,
+  actor_type = excluded.actor_type,
+  actor_id = excluded.actor_id,
+  actor_name = excluded.actor_name,
+  occurred_at = excluded.occurred_at,
+  metadata = excluded.metadata,
+  demo_key = excluded.demo_key,
+  created_at = excluded.created_at;

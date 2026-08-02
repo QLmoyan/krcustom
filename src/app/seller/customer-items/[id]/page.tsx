@@ -3,8 +3,8 @@ import { CustomerOwnedItemDetailView } from "@/components/seller/CustomerOwnedIt
 import { SellerLayout } from "@/components/seller/SellerLayout";
 import { Button } from "@/components/ui/Button";
 import { DEMO } from "@/data/demoFlow";
-import { getCustomerOwnedItemById } from "@/data/mockCustomerOwnedItems";
 import { mockSellerDashboard } from "@/data/mockSellerDashboard";
+import { getCustomerOwnedItemById } from "@/lib/providers/customerOwnedItemProvider";
 import { ko } from "@/messages";
 
 type SellerCustomerItemDetailPageProps = {
@@ -15,7 +15,7 @@ export default async function SellerCustomerItemDetailPage({
   params,
 }: SellerCustomerItemDetailPageProps) {
   const { id } = await params;
-  const item = getCustomerOwnedItemById(id);
+  const { item } = await getCustomerOwnedItemById(id);
 
   if (!item) {
     return (

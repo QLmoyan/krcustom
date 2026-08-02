@@ -16,6 +16,10 @@ import { QuoteTimeline } from "@/components/quote/QuoteTimeline";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
+import {
+  getCustomerOwnedItemByProjectId,
+  toProjectOwnedItemInfo,
+} from "@/lib/providers/customerOwnedItemProvider";
 import { getDesignProofsByProjectId } from "@/lib/providers/designProofProvider";
 import { getOrderByProjectId } from "@/lib/providers/orderProvider";
 import { getProjectById } from "@/lib/providers/projectProvider";
@@ -24,6 +28,7 @@ import {
   getQuotesByProjectId,
   getQuoteTimeline,
 } from "@/lib/providers/quoteProvider";
+import { listTimelineEventsByProjectId } from "@/lib/providers/timelineProvider";
 import { ko } from "@/messages";
 
 type ProjectWorkspacePageProps = {
@@ -61,11 +66,22 @@ export default async function ProjectWorkspacePage({
   const { proofs: designProofs, source: designProofSource } =
     await getDesignProofsByProjectId(id);
   const { order, source: orderSource } = await getOrderByProjectId(id);
+  const { item: ownedItemDetail, source: ownedItemSource } =
+    await getCustomerOwnedItemByProjectId(id);
+  const { events: timelineEvents, source: timelineSource } =
+    await listTimelineEventsByProjectId(id);
+  const ownedItem = ownedItemDetail
+    ? toProjectOwnedItemInfo(ownedItemDetail)
+    : project.ownedItem;
+  const timeline =
+    timelineEvents.length > 0 ? timelineEvents : project.timeline;
   const dataSource =
     source === "supabase" ||
     quoteSource === "supabase" ||
     designProofSource === "supabase" ||
-    orderSource === "supabase"
+    orderSource === "supabase" ||
+    ownedItemSource === "supabase" ||
+    timelineSource === "supabase"
       ? "supabase"
       : "mock";
 
@@ -128,10 +144,10 @@ export default async function ProjectWorkspacePage({
               <QuoteTimeline steps={quoteTimeline} />
               {order ? <ProjectOrderModule order={order} /> : null}
               <ProjectDesignProofModule proofs={designProofs} />
-              <ProjectOwnedItemModule ownedItem={project.ownedItem} />
+              <ProjectOwnedItemModule ownedItem={ownedItem} />
               <ProjectLogisticsModule logistics={project.logistics} />
               <ProjectProductionModule steps={project.productionSteps} />
-              <ProjectTimelineModule events={project.timeline} />
+              <ProjectTimelineModule events={timeline} />
             </div>
           </div>
         </Container>
