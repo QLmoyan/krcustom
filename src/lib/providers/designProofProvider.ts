@@ -8,6 +8,7 @@ import {
   getLatestDesignProof as getMockLatestDesignProof,
 } from "@/data/mockDesignProofs";
 import { formatKoreanDateTime } from "@/lib/format";
+import { resolveDesignProofImageUrl } from "@/lib/providers/storageProvider";
 import * as designProofRepository from "@/repositories/designProof";
 import type { DesignProofWithVersions } from "@/repositories/designProof";
 import type {
@@ -230,6 +231,43 @@ function proofsToListItems(proofs: DesignProof[]): DesignProofListItem[] {
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
+/**
+ * Prefer Storage object URLs when present; otherwise keep DB / mock picsum.
+ * Does not change layout — only URL resolution.
+ */
+async function withResolvedProofImages(
+  proof: DesignProof,
+): Promise<DesignProof> {
+  if (proof.previewImages.length === 0) return proof;
+
+  const previewImages = await Promise.all(
+    proof.previewImages.map(async (image) => {
+      const url = await resolveDesignProofImageUrl(image.url, {
+        proofId: proof.id,
+        version: proof.version,
+        fallbackUrl: image.url,
+      });
+      const thumbnailUrl = await resolveDesignProofImageUrl(
+        image.thumbnailUrl || image.url,
+        {
+          proofId: proof.id,
+          version: proof.version,
+          fallbackUrl: image.thumbnailUrl || image.url,
+        },
+      );
+      return { ...image, url, thumbnailUrl };
+    }),
+  );
+
+  return { ...proof, previewImages };
+}
+
+async function withResolvedProofList(
+  proofs: DesignProof[],
+): Promise<DesignProof[]> {
+  return Promise.all(proofs.map(withResolvedProofImages));
+}
+
 function mergeSellerListItems(
   fromDb: DesignProofListItem[],
 ): DesignProofListItem[] {
@@ -239,6 +277,21 @@ function mergeSellerListItems(
   );
   return [...fromDb, ...extras].sort((a, b) =>
     b.updatedAt.localeCompare(a.updatedAt),
+  );
+}
+
+async function resolveListItemThumbnails(
+  items: DesignProofListItem[],
+): Promise<DesignProofListItem[]> {
+  return Promise.all(
+    items.map(async (item) => ({
+      ...item,
+      thumbnailUrl: await resolveDesignProofImageUrl(item.thumbnailUrl, {
+        proofId: item.latestProofId,
+        version: item.latestVersion,
+        fallbackUrl: item.thumbnailUrl,
+      }),
+    })),
   );
 }
 
@@ -254,8 +307,11 @@ export async function getDesignProofsByProjectId(
     if (rows.length > 0) {
       const mapped = rows.flatMap(mapProofToDesignProofs);
       const projectKey = rows[0]?.projects?.demo_key ?? projectIdentifier;
+      const proofs = await withResolvedProofList(
+        mergeProjectProofs(mapped, projectKey),
+      );
       return {
-        proofs: mergeProjectProofs(mapped, projectKey),
+        proofs,
         source: "supabase",
       };
     }
@@ -264,7 +320,9 @@ export async function getDesignProofsByProjectId(
   }
 
   return {
-    proofs: getMockDesignProofsByProjectId(projectIdentifier),
+    proofs: await withResolvedProofList(
+      getMockDesignProofsByProjectId(projectIdentifier),
+    ),
     source: "mock",
   };
 }
@@ -277,8 +335,9 @@ export async function getLatestDesignProof(
     return { proof: proofs[0], source };
   }
 
+  const mock = getMockLatestDesignProof(projectIdentifier);
   return {
-    proof: getMockLatestDesignProof(projectIdentifier),
+    proof: mock ? await withResolvedProofImages(mock) : undefined,
     source: "mock",
   };
 }
@@ -295,15 +354,19 @@ export async function getDesignProofById(
         mapped.find((p) => p.version === row.current_version) ??
         mapped[0];
       if (match) {
-        return { proof: match, source: "supabase" };
+        return {
+          proof: await withResolvedProofImages(match),
+          source: "supabase",
+        };
       }
     }
   } catch {
     // fall through
   }
 
+  const mock = getMockDesignProofById(identifier);
   return {
-    proof: getMockDesignProofById(identifier),
+    proof: mock ? await withResolvedProofImages(mock) : undefined,
     source: "mock",
   };
 }
@@ -324,16 +387,40 @@ export async function listForSeller(): Promise<DesignProofListResult> {
 
     const rows = await designProofRepository.listForSeller(filter);
     if (rows.length === 0) {
-      return { items: getMockDesignProofListItems(), source: "mock" };
+      const mockItems = getMockDesignProofListItems();
+      const resolvedThumbs = await Promise.all(
+        mockItems.map(async (item) => ({
+          ...item,
+          thumbnailUrl: await resolveDesignProofImageUrl(item.thumbnailUrl, {
+            proofId: item.latestProofId,
+            version: item.latestVersion,
+            fallbackUrl: item.thumbnailUrl,
+          }),
+        })),
+      );
+      return { items: resolvedThumbs, source: "mock" };
     }
 
-    const fromDb = proofsToListItems(rows.flatMap(mapProofToDesignProofs));
+    const fromDb = proofsToListItems(
+      await withResolvedProofList(rows.flatMap(mapProofToDesignProofs)),
+    );
     return {
-      items: mergeSellerListItems(fromDb),
+      items: await resolveListItemThumbnails(mergeSellerListItems(fromDb)),
       source: "supabase",
     };
   } catch {
-    return { items: getMockDesignProofListItems(), source: "mock" };
+    const mockItems = getMockDesignProofListItems();
+    const resolvedThumbs = await Promise.all(
+      mockItems.map(async (item) => ({
+        ...item,
+        thumbnailUrl: await resolveDesignProofImageUrl(item.thumbnailUrl, {
+          proofId: item.latestProofId,
+          version: item.latestVersion,
+          fallbackUrl: item.thumbnailUrl,
+        }),
+      })),
+    );
+    return { items: resolvedThumbs, source: "mock" };
   }
 }
 

@@ -5,6 +5,10 @@
 -- Design proofs: V1/V2/V3 for prj-001; V3 status CONFIRMED (Approved)
 -- Orders: ord-001 for prj-001; order_number ORD-20260802-001; total 64800;
 --   status COMPLETED, payment PAID, production FINISHED, shipping DELIVERED
+-- Sprint 8 Phase 2 Storage: image columns keep picsum URLs as Demo fallback.
+--   Optional Storage objects use path `{userId|demo}/{entityId}/{filename}`
+--   in buckets avatars | project-images | design-proofs | customer-items | public-assets.
+--   Binary seed upload is optional (no service_role required for App path).
 -- Prerequisite: projects + quotes + design_proofs + orders migrations applied.
 -- Idempotent: on conflict do update; items/revisions/versions/payments re-upserted by fixed UUIDs.
 

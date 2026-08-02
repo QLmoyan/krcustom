@@ -7,6 +7,7 @@ import {
   mockCustomerOwnedItems,
 } from "@/data/mockCustomerOwnedItems";
 import { formatKoreanDateTime } from "@/lib/format";
+import { resolveCustomerItemPhotoUrls } from "@/lib/providers/storageProvider";
 import * as customerOwnedItemRepository from "@/repositories/customerOwnedItem";
 import type { CustomerOwnedItemWithProject } from "@/repositories/customerOwnedItem";
 import type {
@@ -153,6 +154,25 @@ export function mapRowToCustomerOwnedItem(
   };
 }
 
+/**
+ * Prefer Storage photo objects when present; otherwise keep DB / mock picsum.
+ */
+async function withResolvedItemPhotos(
+  item: CustomerOwnedItem,
+): Promise<CustomerOwnedItem> {
+  const [customerPhotos, receivedPhotos] = await Promise.all([
+    resolveCustomerItemPhotoUrls(item.customerPhotos, {
+      itemId: item.id,
+      fallbackPhotos: item.customerPhotos,
+    }),
+    resolveCustomerItemPhotoUrls(item.receivedPhotos, {
+      itemId: item.id,
+      fallbackPhotos: item.receivedPhotos,
+    }),
+  ]);
+  return { ...item, customerPhotos, receivedPhotos };
+}
+
 /** Compact shape for Project workspace owned-item module. */
 export function toProjectOwnedItemInfo(
   item: CustomerOwnedItem,
@@ -200,14 +220,18 @@ export async function getCustomerOwnedItemById(
   try {
     const row = await customerOwnedItemRepository.getById(identifier);
     if (row) {
-      return { item: mapRowToCustomerOwnedItem(row), source: "supabase" };
+      return {
+        item: await withResolvedItemPhotos(mapRowToCustomerOwnedItem(row)),
+        source: "supabase",
+      };
     }
   } catch {
     // fall through
   }
 
+  const mock = getMockCustomerOwnedItemById(identifier);
   return {
-    item: getMockCustomerOwnedItemById(identifier),
+    item: mock ? await withResolvedItemPhotos(mock) : undefined,
     source: "mock",
   };
 }
@@ -221,7 +245,10 @@ export async function getCustomerOwnedItemByProjectId(
   try {
     const row = await customerOwnedItemRepository.getByProject(projectIdentifier);
     if (row) {
-      return { item: mapRowToCustomerOwnedItem(row), source: "supabase" };
+      return {
+        item: await withResolvedItemPhotos(mapRowToCustomerOwnedItem(row)),
+        source: "supabase",
+      };
     }
   } catch {
     // fall through
@@ -230,7 +257,10 @@ export async function getCustomerOwnedItemByProjectId(
   const mock = mockCustomerOwnedItems.find(
     (item) => item.projectId === projectIdentifier,
   );
-  return { item: mock, source: "mock" };
+  return {
+    item: mock ? await withResolvedItemPhotos(mock) : undefined,
+    source: "mock",
+  };
 }
 
 /**
@@ -240,14 +270,24 @@ export async function listCustomerOwnedItems(): Promise<CustomerOwnedItemsResult
   try {
     const rows = await customerOwnedItemRepository.listItems();
     if (rows.length === 0) {
-      return { items: mockCustomerOwnedItems, source: "mock" };
+      const items = await Promise.all(
+        mockCustomerOwnedItems.map(withResolvedItemPhotos),
+      );
+      return { items, source: "mock" };
     }
     return {
-      items: mergeList(rows.map(mapRowToCustomerOwnedItem)),
+      items: await Promise.all(
+        mergeList(rows.map(mapRowToCustomerOwnedItem)).map(
+          withResolvedItemPhotos,
+        ),
+      ),
       source: "supabase",
     };
   } catch {
-    return { items: mockCustomerOwnedItems, source: "mock" };
+    const items = await Promise.all(
+      mockCustomerOwnedItems.map(withResolvedItemPhotos),
+    );
+    return { items, source: "mock" };
   }
 }
 

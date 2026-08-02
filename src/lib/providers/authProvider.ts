@@ -5,6 +5,7 @@ import {
 } from "@/data/mockAuth";
 import * as authRepository from "@/repositories/auth";
 import * as profileRepository from "@/repositories/profile";
+import { resolveAvatarUrl } from "@/lib/providers/storageProvider";
 import type {
   AuthActionResult,
   AuthSessionResult,
@@ -25,6 +26,22 @@ function isSupabaseConfigured(): boolean {
   );
 }
 
+/** Resolve avatar via Storage when an object exists; otherwise keep DB/mock. */
+async function withResolvedAvatar(profile: AppProfile): Promise<AppProfile> {
+  const avatar = await resolveAvatarUrl(profile.avatar, {
+    profileId: profile.id,
+    fallbackUrl: profile.avatar,
+  });
+  return { ...profile, avatar };
+}
+
+async function withResolvedAuthUser(user: AuthUser): Promise<AuthUser> {
+  return {
+    ...user,
+    profile: await withResolvedAvatar(user.profile),
+  };
+}
+
 /**
  * Current signed-in user + profile.
  * Unauthenticated / misconfigured → null (callers keep Demo data paths).
@@ -36,7 +53,9 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   }
 
   try {
-    return await authRepository.getCurrentAuthUser();
+    const user = await authRepository.getCurrentAuthUser();
+    if (!user) return null;
+    return withResolvedAuthUser(user);
   } catch {
     return null;
   }
@@ -149,10 +168,16 @@ export async function getProfileById(
 ): Promise<{ profile: AppProfile | null; source: AuthDataSource }> {
   if (!isSupabaseConfigured()) {
     if (id === mockDemoCustomer.profile.id) {
-      return { profile: mockCustomerProfile, source: "mock" };
+      return {
+        profile: await withResolvedAvatar(mockCustomerProfile),
+        source: "mock",
+      };
     }
     if (id === mockDemoSeller.profile.id) {
-      return { profile: mockDemoSeller.profile, source: "mock" };
+      return {
+        profile: await withResolvedAvatar(mockDemoSeller.profile),
+        source: "mock",
+      };
     }
     return { profile: null, source: "mock" };
   }
@@ -160,17 +185,26 @@ export async function getProfileById(
   try {
     const profile = await profileRepository.getById(id);
     if (profile) {
-      return { profile, source: "supabase" };
+      return {
+        profile: await withResolvedAvatar(profile),
+        source: "supabase",
+      };
     }
   } catch {
     // fall through
   }
 
   if (id === mockDemoCustomer.profile.id) {
-    return { profile: mockCustomerProfile, source: "mock" };
+    return {
+      profile: await withResolvedAvatar(mockCustomerProfile),
+      source: "mock",
+    };
   }
   if (id === mockDemoSeller.profile.id) {
-    return { profile: mockDemoSeller.profile, source: "mock" };
+    return {
+      profile: await withResolvedAvatar(mockDemoSeller.profile),
+      source: "mock",
+    };
   }
   return { profile: null, source: "mock" };
 }

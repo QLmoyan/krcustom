@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -686,7 +686,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_profile_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      is_admin: { Args: never; Returns: boolean }
+      is_project_participant: {
+        Args: { p_project_id: string }
+        Returns: boolean
+      }
+      is_project_participant_from_path: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
+      is_storage_object_owner: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
+      storage_object_owner: { Args: { object_name: string }; Returns: string }
     }
     Enums: {
       user_role: "CUSTOMER" | "SELLER" | "ADMIN"
