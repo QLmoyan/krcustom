@@ -79,11 +79,19 @@ export async function listMessagesByProjectId(
     const { conversation, messages } =
       await chatRepository.listMessagesByProject(projectIdentifier);
 
-    if (!conversation || messages.length === 0) {
+    if (!conversation) {
       return {
         messages: mockMessagesForProject(projectIdentifier),
-        conversationId: conversation?.id ?? null,
+        conversationId: null,
         source: "mock",
+      };
+    }
+
+    if (messages.length === 0) {
+      return {
+        messages: [],
+        conversationId: conversation.id,
+        source: "supabase",
       };
     }
 
@@ -161,6 +169,7 @@ export async function listConversations(): Promise<ConversationsResult> {
 export async function sendMessage(input: {
   conversationId: string;
   body: string;
+  senderId?: string | null;
   senderRole?: "CUSTOMER" | "SELLER" | "ADMIN";
   contentType?: "text" | "image";
   imageUrl?: string | null;
@@ -168,6 +177,7 @@ export async function sendMessage(input: {
   try {
     const row = await chatRepository.sendMessage({
       conversationId: input.conversationId,
+      senderId: input.senderId ?? null,
       senderRole: input.senderRole ?? "CUSTOMER",
       contentType: input.contentType ?? "text",
       body: input.body,

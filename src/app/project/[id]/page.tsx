@@ -8,6 +8,7 @@ import { ProjectLogisticsModule } from "@/components/project/ProjectLogisticsMod
 import { ProjectOrderModule } from "@/components/project/ProjectOrderModule";
 import { ProjectOwnedItemModule } from "@/components/project/ProjectOwnedItemModule";
 import { ProjectProductionModule } from "@/components/project/ProjectProductionModule";
+import { ProjectReferenceImagesModule } from "@/components/project/ProjectReferenceImagesModule";
 import { ProjectStatusModule } from "@/components/project/ProjectStatusModule";
 import { ProjectTimelineModule } from "@/components/project/ProjectTimelineModule";
 import { ProjectRealtimeRefresh } from "@/components/realtime/ProjectRealtimeRefresh";
@@ -29,6 +30,7 @@ import {
   getQuotesByProjectId,
   getQuoteTimeline,
 } from "@/lib/providers/quoteProvider";
+import { listProjectImageUrls } from "@/lib/providers/storageProvider";
 import { listTimelineEventsByProjectId } from "@/lib/providers/timelineProvider";
 import { ko } from "@/messages";
 
@@ -69,6 +71,7 @@ export default async function ProjectWorkspacePage({
     ownedItemResult,
     timelineResult,
     chatResult,
+    projectImagesResult,
   ] = await Promise.all([
     getQuotesByProjectId(id),
     getQuoteTimeline(id),
@@ -77,6 +80,7 @@ export default async function ProjectWorkspacePage({
     getCustomerOwnedItemByProjectId(id),
     listTimelineEventsByProjectId(id),
     listMessagesByProjectId(id),
+    listProjectImageUrls(id),
   ]);
 
   const { quotes, source: quoteSource } = quotesResult;
@@ -86,7 +90,13 @@ export default async function ProjectWorkspacePage({
   const { order, source: orderSource } = orderResult;
   const { item: ownedItemDetail, source: ownedItemSource } = ownedItemResult;
   const { events: timelineEvents, source: timelineSource } = timelineResult;
-  const { messages: chatMessages, source: chatSource } = chatResult;
+  const {
+    messages: chatMessages,
+    conversationId,
+    source: chatSource,
+  } = chatResult;
+  const { urls: referenceImageUrls, source: imagesSource } =
+    projectImagesResult;
   const ownedItem = ownedItemDetail
     ? toProjectOwnedItemInfo(ownedItemDetail)
     : project.ownedItem;
@@ -99,7 +109,8 @@ export default async function ProjectWorkspacePage({
     orderSource === "supabase" ||
     ownedItemSource === "supabase" ||
     timelineSource === "supabase" ||
-    chatSource === "supabase"
+    chatSource === "supabase" ||
+    imagesSource === "storage"
       ? "supabase"
       : "mock";
 
@@ -146,11 +157,16 @@ export default async function ProjectWorkspacePage({
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] lg:items-start lg:gap-5">
             <div className="min-w-0 lg:sticky lg:top-[4.75rem] lg:h-[calc(100vh-6.5rem)]">
-              <ProjectChatPanel messages={chatMessages} />
+              <ProjectChatPanel
+                projectId={id}
+                conversationId={conversationId}
+                messages={chatMessages}
+              />
             </div>
 
             <div className="min-w-0 space-y-3.5">
               <ProjectStatusModule status={project.status} />
+              <ProjectReferenceImagesModule urls={referenceImageUrls} />
               {latestQuote ? (
                 <section>
                   <h2 className="mb-2 text-[15px] font-semibold text-[#0F172A]">

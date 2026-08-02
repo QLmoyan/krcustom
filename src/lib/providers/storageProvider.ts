@@ -293,6 +293,58 @@ export async function uploadIfAuthenticated(
   }
 }
 
+/**
+ * List readable URLs for objects under `{ownerId}/{projectId}/` in project-images.
+ * Used so sellers/customers can see reference uploads for a project.
+ */
+export async function listProjectImageUrls(
+  projectId: string,
+  options: {
+    ownerId?: string | null;
+    fallbackUrls?: string[];
+  } = {},
+): Promise<{ urls: string[]; source: StorageDataSource }> {
+  const fallbacks = options.fallbackUrls ?? [];
+
+  try {
+    const projectRepository = await import("@/repositories/project");
+    const project = await projectRepository.getProjectById(projectId);
+    if (!project) {
+      return { urls: fallbacks, source: "mock" };
+    }
+
+    const ownerId = options.ownerId ?? project.customer_id;
+    const prefix = `${ownerId}/${project.id}`;
+    const items = await storageRepository.list(
+      STORAGE_BUCKETS.PROJECT_IMAGES,
+      prefix,
+      { limit: 50 },
+    );
+
+    const files = items.filter(
+      (item) => item.name && !item.name.endsWith("/") && item.id !== null,
+    );
+
+    if (files.length === 0) {
+      return { urls: fallbacks, source: "mock" };
+    }
+
+    const urls = await Promise.all(
+      files.map(async (item) => {
+        const objectPath = `${prefix}/${item.name}`;
+        return storageRepository.resolveReadableUrl(
+          STORAGE_BUCKETS.PROJECT_IMAGES,
+          objectPath,
+        );
+      }),
+    );
+
+    return { urls, source: "storage" };
+  } catch {
+    return { urls: fallbacks, source: "mock" };
+  }
+}
+
 /** Convenience wrappers for domain uploads (logged-in only). */
 export async function uploadDesignProofImage(
   entityId: string,

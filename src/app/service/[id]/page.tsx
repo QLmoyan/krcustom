@@ -3,12 +3,11 @@ import { DemoFlowHint } from "@/components/demo/DemoFlowHint";
 import { Header } from "@/components/layout/Header";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { CustomerOwnedItemCallout } from "@/components/service/CustomerOwnedItemCallout";
-import { ServiceActionPanel } from "@/components/service/ServiceActionPanel";
 import { ServiceCapabilities } from "@/components/service/ServiceCapabilities";
 import { ServiceDetailBlocks } from "@/components/service/ServiceDetailBlocks";
 import { ServiceFaq } from "@/components/service/ServiceFaq";
 import { ServiceGallery } from "@/components/service/ServiceGallery";
-import { ServiceOptions } from "@/components/service/ServiceOptions";
+import { ServiceInquirySection } from "@/components/service/ServiceInquirySection";
 import { ServicePortfolio } from "@/components/service/ServicePortfolio";
 import { ServiceProcess } from "@/components/service/ServiceProcess";
 import { ServiceTrustPoints } from "@/components/service/ServiceTrustPoints";
@@ -159,11 +158,7 @@ export default async function ServiceDetailPage({
 
               <ServiceCapabilities />
 
-              <ServiceOptions service={service} />
-
-              <div className="hidden lg:block">
-                <ServiceActionPanel service={service} layout="stack" />
-              </div>
+              <ServiceInquirySection service={service} />
 
               <CustomerOwnedItemCallout
                 visible={service.supportsCustomerOwnedItem}
@@ -251,10 +246,6 @@ export default async function ServiceDetailPage({
           </div>
         </Container>
       </main>
-
-      <div className="fixed inset-x-0 bottom-14 z-30 md:bottom-0 lg:hidden">
-        <ServiceActionPanel service={service} layout="mobile-bar" />
-      </div>
 
       {id === DEMO.serviceId ? <DemoFlowHint step={1} /> : null}
       <MobileBottomNav />

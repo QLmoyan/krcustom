@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { HeaderAuthNav } from "@/components/layout/HeaderAuthNav";
 import { Container } from "@/components/ui/Container";
 import { ko } from "@/messages";
 
@@ -108,11 +109,9 @@ export function Header({ showPopularSearches = false }: HeaderProps) {
           >
             {ko.nav.orders}
           </Link>
-          <Link href="/login">
-            <span className="inline-flex h-8 items-center justify-center rounded-lg border border-[#CBD5E1] bg-white px-3 text-[13px] font-semibold text-[#0F172A] hover:bg-[#F8FAFC]">
-              {ko.nav.login}
-            </span>
-          </Link>
+          <div className="ml-1 flex items-center gap-1.5">
+            <HeaderAuthNav />
+          </div>
         </nav>
 
         <div className="ml-auto flex items-center gap-2 md:ml-0 lg:hidden">
@@ -217,13 +216,10 @@ export function Header({ showPopularSearches = false }: HeaderProps) {
             >
               {ko.nav.orders}
             </Link>
-            <Link
-              href="/login"
-              className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-[#0F766E] hover:bg-[#F0FDFA]"
-              onClick={() => setMenuOpen(false)}
-            >
-              {ko.nav.login}
-            </Link>
+            <HeaderAuthNav
+              compact
+              onNavigate={() => setMenuOpen(false)}
+            />
           </Container>
         </div>
       ) : null}

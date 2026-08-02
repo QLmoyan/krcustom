@@ -6,9 +6,21 @@ import { ko } from "@/messages";
 
 type ServiceOptionsProps = {
   service: Service;
+  note?: string;
+  onNoteChange?: (value: string) => void;
+  referenceFile?: File | null;
+  onReferenceFileChange?: (file: File | null) => void;
+  uploadDisabled?: boolean;
 };
 
-export function ServiceOptions({ service }: ServiceOptionsProps) {
+export function ServiceOptions({
+  service,
+  note: controlledNote,
+  onNoteChange,
+  referenceFile,
+  onReferenceFileChange,
+  uploadDisabled = false,
+}: ServiceOptionsProps) {
   const optionGroups = service.availableOptions ?? [];
   const minQuantity = service.minimumOrderQuantity ?? 1;
   const quantityTiers = service.quantityTiers;
@@ -17,8 +29,12 @@ export function ServiceOptions({ service }: ServiceOptionsProps) {
     () => buildDefaultSelections(optionGroups),
   );
   const [quantity, setQuantity] = useState(minQuantity);
-  const [note, setNote] = useState("");
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [internalNote, setInternalNote] = useState("");
+  const [dragOver, setDragOver] = useState(false);
+
+  const note = controlledNote ?? internalNote;
+  const setNote = onNoteChange ?? setInternalNote;
+  const fileName = referenceFile?.name ?? null;
 
   const matchedTierNote = quantityTiers?.find((item) => {
     const withinMin = quantity >= item.minQuantity;
@@ -26,6 +42,10 @@ export function ServiceOptions({ service }: ServiceOptionsProps) {
       item.maxQuantity === null || quantity <= item.maxQuantity;
     return withinMin && withinMax;
   })?.note;
+
+  function assignFile(file: File | null) {
+    onReferenceFileChange?.(file);
+  }
 
   return (
     <div className="space-y-4">
@@ -120,7 +140,28 @@ export function ServiceOptions({ service }: ServiceOptionsProps) {
         <p className="mb-1.5 text-[13px] font-semibold text-[#0F172A]">
           {ko.service.referenceUpload}
         </p>
-        <label className="flex cursor-pointer flex-col items-start gap-0.5 rounded-lg border border-dashed border-[#CBD5E1] bg-[#F8FAFC] px-3 py-2.5 hover:border-[#0F766E]">
+        <label
+          className={[
+            "flex cursor-pointer flex-col items-start gap-0.5 rounded-lg border border-dashed bg-[#F8FAFC] px-3 py-2.5 transition",
+            dragOver
+              ? "border-[#0F766E] bg-[#F0FDFA]"
+              : "border-[#CBD5E1] hover:border-[#0F766E]",
+            uploadDisabled ? "pointer-events-none opacity-60" : "",
+          ].join(" ")}
+          onDragOver={(event) => {
+            event.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(event) => {
+            event.preventDefault();
+            setDragOver(false);
+            const file = event.dataTransfer.files?.[0];
+            if (file && file.type.startsWith("image/")) {
+              assignFile(file);
+            }
+          }}
+        >
           <span className="text-[13px] font-medium text-[#0F766E]">
             {ko.service.referenceUpload}
           </span>
@@ -131,16 +172,27 @@ export function ServiceOptions({ service }: ServiceOptionsProps) {
             type="file"
             accept="image/*"
             className="sr-only"
+            disabled={uploadDisabled}
             onChange={(event) => {
-              const file = event.target.files?.[0];
-              setFileName(file ? file.name : null);
+              const file = event.target.files?.[0] ?? null;
+              assignFile(file);
             }}
           />
         </label>
         {fileName ? (
-          <p className="mt-1.5 truncate text-[12px] text-[#64748B]">
-            {ko.service.selectedFile}: {fileName}
-          </p>
+          <div className="mt-1.5 flex items-center gap-2">
+            <p className="min-w-0 flex-1 truncate text-[12px] text-[#64748B]">
+              {ko.service.selectedFile}: {fileName}
+            </p>
+            <button
+              type="button"
+              className="shrink-0 text-[12px] font-semibold text-[#DC2626] hover:underline"
+              onClick={() => assignFile(null)}
+              disabled={uploadDisabled}
+            >
+              {ko.service.referenceRemove}
+            </button>
+          </div>
         ) : null}
       </div>
 

@@ -8,3 +8,4 @@ export { ProjectLogisticsModule } from "./ProjectLogisticsModule";
 export { ProjectProductionModule } from "./ProjectProductionModule";
 export { ProjectTimelineModule } from "./ProjectTimelineModule";
 export { ProjectOrderModule } from "./ProjectOrderModule";
+export { ProjectReferenceImagesModule } from "./ProjectReferenceImagesModule";
