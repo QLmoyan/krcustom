@@ -5,15 +5,28 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { DesignProofStatus } from "@/constants/status";
-import {
-  getDesignProofListItems,
-  getDesignProofStats,
-} from "@/data/mockDesignProofs";
 import { getStatusLabel } from "@/constants/status";
 import { ko } from "@/messages";
-import type { DesignProofStatus as DesignProofStatusCode } from "@/types/DesignProof";
+import type {
+  DesignProofListItem,
+  DesignProofStatus as DesignProofStatusCode,
+} from "@/types/DesignProof";
 
 const copy = ko.designProof;
+
+type DesignProofStats = {
+  drafting: number;
+  awaitingCustomer: number;
+  revisionRequested: number;
+  confirmed: number;
+  locked: number;
+  projects: number;
+};
+
+type SellerDesignProofListViewProps = {
+  items: DesignProofListItem[];
+  stats: DesignProofStats;
+};
 
 const statusTabs: {
   key: "all" | DesignProofStatusCode;
@@ -45,11 +58,12 @@ const statusTabs: {
   },
 ];
 
-export function SellerDesignProofListView() {
+export function SellerDesignProofListView({
+  items,
+  stats,
+}: SellerDesignProofListViewProps) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | DesignProofStatusCode>("all");
-  const items = getDesignProofListItems();
-  const stats = getDesignProofStats(items);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

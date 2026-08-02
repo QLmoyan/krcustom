@@ -8,7 +8,7 @@ import { DEMO } from "@/data/demoFlow";
 import {
   getDesignProofById,
   getDesignProofsByProjectId,
-} from "@/data/mockDesignProofs";
+} from "@/lib/providers/designProofProvider";
 import { ko } from "@/messages";
 
 type CustomerDesignProofPageProps = {
@@ -19,7 +19,7 @@ export default async function CustomerDesignProofPage({
   params,
 }: CustomerDesignProofPageProps) {
   const { id } = await params;
-  const proof = getDesignProofById(id);
+  const { proof } = await getDesignProofById(id);
 
   if (!proof) {
     return (
@@ -40,7 +40,9 @@ export default async function CustomerDesignProofPage({
     );
   }
 
-  const versions = getDesignProofsByProjectId(proof.projectId);
+  const { proofs: versions } = await getDesignProofsByProjectId(
+    proof.projectId,
+  );
 
   return (
     <div className="min-h-full bg-[#F8FAFC] pb-20 md:pb-8">

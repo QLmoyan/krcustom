@@ -6,7 +6,7 @@ import {
   getDesignProofById,
   getDesignProofsByProjectId,
   getDesignProofTimeline,
-} from "@/data/mockDesignProofs";
+} from "@/lib/providers/designProofProvider";
 import { mockSellerDashboard } from "@/data/mockSellerDashboard";
 import { ko } from "@/messages";
 
@@ -18,7 +18,7 @@ export default async function SellerDesignProofDetailPage({
   params,
 }: SellerDesignProofDetailPageProps) {
   const { id } = await params;
-  const proof = getDesignProofById(id);
+  const { proof } = await getDesignProofById(id);
 
   if (!proof) {
     return (
@@ -41,8 +41,10 @@ export default async function SellerDesignProofDetailPage({
     );
   }
 
-  const versions = getDesignProofsByProjectId(proof.projectId);
-  const timeline = getDesignProofTimeline(proof.projectId);
+  const { proofs: versions } = await getDesignProofsByProjectId(
+    proof.projectId,
+  );
+  const timeline = await getDesignProofTimeline(proof.projectId);
 
   return (
     <SellerLayout

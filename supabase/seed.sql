@@ -1,8 +1,9 @@
--- Sprint 7 Phase 2 + Phase 3 seed
+-- Sprint 7 Phase 2 + Phase 3 + Phase 4 seed
 -- Project: id = UUID PK; demo_key = frontend route key (prj-001)
 -- Quotes: V1/V2/V3 for prj-001; demo_key = frontend quote ids; final total = 64800
--- Prerequisite: projects + quotes migrations applied.
--- Idempotent: on conflict do update; items/revisions re-upserted by fixed UUIDs.
+-- Design proofs: V1/V2/V3 for prj-001; V3 status CONFIRMED (Approved)
+-- Prerequisite: projects + quotes + design_proofs migrations applied.
+-- Idempotent: on conflict do update; items/revisions/versions re-upserted by fixed UUIDs.
 
 insert into public.projects (
   id,
@@ -206,3 +207,95 @@ on conflict (id) do update set
   actor = excluded.actor,
   occurred_at = excluded.occurred_at,
   demo_key = excluded.demo_key;
+
+-- ---------------------------------------------------------------------------
+-- Design proofs V1 / V2 / V3 (prj-001) — V3 Approved (CONFIRMED)
+-- ---------------------------------------------------------------------------
+
+insert into public.design_proofs (
+  id,
+  project_id,
+  current_version,
+  status,
+  customer_comment,
+  seller_comment,
+  approved_at,
+  rejected_at,
+  demo_key,
+  created_at,
+  updated_at
+)
+values (
+  '51111111-1111-4111-8111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
+  3,
+  'CONFIRMED',
+  '이 시안으로 확인했습니다.',
+  '요청하신 크기로 로고를 확대했습니다. 네이비 실 색상은 유지했습니다.',
+  '2026-07-12 17:05:00+09',
+  null,
+  'dp-prj001',
+  '2026-07-11 15:00:00+09',
+  '2026-07-12 17:05:00+09'
+)
+on conflict (id) do update set
+  project_id = excluded.project_id,
+  current_version = excluded.current_version,
+  status = excluded.status,
+  customer_comment = excluded.customer_comment,
+  seller_comment = excluded.seller_comment,
+  approved_at = excluded.approved_at,
+  rejected_at = excluded.rejected_at,
+  demo_key = excluded.demo_key,
+  created_at = excluded.created_at,
+  updated_at = excluded.updated_at;
+
+insert into public.design_proof_versions (
+  id,
+  proof_id,
+  version_no,
+  image_url,
+  thumbnail_url,
+  notes,
+  demo_key,
+  created_at
+)
+values
+  (
+    '61111111-1111-4111-8111-111111111111',
+    '51111111-1111-4111-8111-111111111111',
+    1,
+    'https://picsum.photos/seed/krcustom-dp-v1a/960/720',
+    'https://picsum.photos/seed/krcustom-dp-v1a/320/240',
+    '초기 시안 발송|기본 위치 시안|기본 왼쪽 가슴 위치에 로고를 배치한 시안입니다.|위치를 조금 더 안으로 옮겨 주세요.|위치 수정 요청',
+    'dp-prj001-v1',
+    '2026-07-11 15:00:00+09'
+  ),
+  (
+    '61111111-1111-4111-8111-111111111112',
+    '51111111-1111-4111-8111-111111111111',
+    2,
+    'https://picsum.photos/seed/krcustom-dp-v2a/960/720',
+    'https://picsum.photos/seed/krcustom-dp-v2a/320/240',
+    '위치 안쪽 이동 반영|위치 조정 시안|요청하신 위치로 로고를 이동했습니다. 확인해 주세요.|로고를 조금 더 크게 해 주세요.|로고 크기 확대 요청',
+    'dp-prj001-v2',
+    '2026-07-12 11:00:00+09'
+  ),
+  (
+    '61111111-1111-4111-8111-111111111113',
+    '51111111-1111-4111-8111-111111111111',
+    3,
+    'https://picsum.photos/seed/krcustom-dp-v3a/960/720',
+    'https://picsum.photos/seed/krcustom-dp-v3a/320/240',
+    '로고 크기 확대 반영|로고 확대 시안|요청하신 크기로 로고를 확대했습니다. 네이비 실 색상은 유지했습니다.|이 시안으로 확인했습니다.|',
+    'dp-prj001-v3',
+    '2026-07-12 16:00:00+09'
+  )
+on conflict (id) do update set
+  proof_id = excluded.proof_id,
+  version_no = excluded.version_no,
+  image_url = excluded.image_url,
+  thumbnail_url = excluded.thumbnail_url,
+  notes = excluded.notes,
+  demo_key = excluded.demo_key,
+  created_at = excluded.created_at;

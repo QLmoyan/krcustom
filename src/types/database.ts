@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -39,6 +39,97 @@ export type Database = {
   }
   public: {
     Tables: {
+      design_proof_versions: {
+        Row: {
+          created_at: string
+          demo_key: string | null
+          id: string
+          image_url: string
+          notes: string
+          proof_id: string
+          thumbnail_url: string
+          version_no: number
+        }
+        Insert: {
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          image_url?: string
+          notes?: string
+          proof_id: string
+          thumbnail_url?: string
+          version_no: number
+        }
+        Update: {
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          image_url?: string
+          notes?: string
+          proof_id?: string
+          thumbnail_url?: string
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "design_proof_versions_proof_id_fkey"
+            columns: ["proof_id"]
+            isOneToOne: false
+            referencedRelation: "design_proofs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      design_proofs: {
+        Row: {
+          approved_at: string | null
+          created_at: string
+          current_version: number
+          customer_comment: string
+          demo_key: string | null
+          id: string
+          project_id: string
+          rejected_at: string | null
+          seller_comment: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          created_at?: string
+          current_version?: number
+          customer_comment?: string
+          demo_key?: string | null
+          id?: string
+          project_id: string
+          rejected_at?: string | null
+          seller_comment?: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          created_at?: string
+          current_version?: number
+          customer_comment?: string
+          demo_key?: string | null
+          id?: string
+          project_id?: string
+          rejected_at?: string | null
+          seller_comment?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "design_proofs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
@@ -409,3 +500,11 @@ export type QuoteItemUpdate = TablesUpdate<"quote_items">;
 export type QuoteRevisionRow = Tables<"quote_revisions">;
 export type QuoteRevisionInsert = TablesInsert<"quote_revisions">;
 export type QuoteRevisionUpdate = TablesUpdate<"quote_revisions">;
+
+/** Design proof table aliases for app code */
+export type DesignProofRow = Tables<"design_proofs">;
+export type DesignProofInsert = TablesInsert<"design_proofs">;
+export type DesignProofUpdate = TablesUpdate<"design_proofs">;
+export type DesignProofVersionRow = Tables<"design_proof_versions">;
+export type DesignProofVersionInsert = TablesInsert<"design_proof_versions">;
+export type DesignProofVersionUpdate = TablesUpdate<"design_proof_versions">;

@@ -16,8 +16,8 @@ import { QuoteTimeline } from "@/components/quote/QuoteTimeline";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
-import { getDesignProofsByProjectId } from "@/data/mockDesignProofs";
 import { getOrderByProjectId } from "@/data/mockOrders";
+import { getDesignProofsByProjectId } from "@/lib/providers/designProofProvider";
 import { getProjectById } from "@/lib/providers/projectProvider";
 import {
   getLatestQuote,
@@ -58,11 +58,15 @@ export default async function ProjectWorkspacePage({
   const { quotes, source: quoteSource } = await getQuotesByProjectId(id);
   const { quote: latestQuote } = await getLatestQuote(id);
   const quoteTimeline = await getQuoteTimeline(id);
-  const designProofs = getDesignProofsByProjectId(id);
+  const { proofs: designProofs, source: designProofSource } =
+    await getDesignProofsByProjectId(id);
   const order = getOrderByProjectId(id);
-  const dataSource = source === "supabase" || quoteSource === "supabase"
-    ? "supabase"
-    : "mock";
+  const dataSource =
+    source === "supabase" ||
+    quoteSource === "supabase" ||
+    designProofSource === "supabase"
+      ? "supabase"
+      : "mock";
 
   return (
     <div className="min-h-full bg-[#F8FAFC] pb-20 md:pb-8">
