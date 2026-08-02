@@ -1,0 +1,60 @@
+import { ko } from "@/messages";
+import type { TimelineEvent } from "@/types/TimelineEvent";
+
+const copy = ko.order;
+
+type OrderTimelineProps = {
+  events: TimelineEvent[];
+};
+
+export function OrderTimeline({ events }: OrderTimelineProps) {
+  if (events.length === 0) return null;
+  return (
+    <section className="rounded-xl border border-[#E2E8F0] bg-white p-4">
+      <h3 className="text-[15px] font-semibold text-[#0F172A]">{copy.timeline}</h3>
+      <ol className="mt-3 space-y-0">
+        {events.map((event, index) => {
+          const isLast = index === events.length - 1;
+          return (
+            <li key={event.id} className="relative flex gap-3 pb-4 last:pb-0">
+              {!isLast ? (
+                <span
+                  className="absolute left-[7px] top-4 h-[calc(100%-8px)] w-px bg-[#E2E8F0]"
+                  aria-hidden
+                />
+              ) : null}
+              <span
+                className={[
+                  "relative z-[1] mt-1 h-3.5 w-3.5 shrink-0 rounded-full border-2",
+                  event.status === "COMPLETED"
+                    ? "border-[#15803D] bg-[#15803D]"
+                    : event.status === "CURRENT"
+                      ? "border-[#0F766E] bg-white ring-2 ring-[#99F6E4]"
+                      : event.status === "ERROR"
+                        ? "border-[#DC2626] bg-[#FEF2F2]"
+                        : "border-[#CBD5E1] bg-white",
+                ].join(" ")}
+                aria-hidden
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <h4 className="text-[13px] font-semibold text-[#0F172A]">
+                    {event.title}
+                  </h4>
+                  {event.occurredAt ? (
+                    <time className="text-[11px] text-[#94A3B8]">
+                      {event.occurredAt}
+                    </time>
+                  ) : null}
+                </div>
+                <p className="mt-0.5 break-keep text-[12px] text-[#64748B]">
+                  {event.description}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
