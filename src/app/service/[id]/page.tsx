@@ -60,7 +60,7 @@ export default async function ServiceDetailPage({
   const reviewHighlights = service.reviewSummary?.highlights.slice(0, 2) ?? [];
 
   return (
-    <div className="min-h-full bg-[#F8FAFC] pb-32 md:pb-8">
+    <div className="min-h-full bg-[#F8FAFC] pb-20 md:pb-8">
       <Header />
 
       <main>
@@ -135,7 +135,16 @@ export default async function ServiceDetailPage({
                 visible={service.supportsCustomerOwnedItem}
               />
 
-              {store ? <StoreInfoCard store={store} /> : null}
+              {store ? (
+                <StoreInfoCard
+                  store={store}
+                  chatService={{
+                    id: service.id,
+                    title: service.title,
+                    storeName: service.storeName,
+                  }}
+                />
+              ) : null}
             </div>
           </div>
 

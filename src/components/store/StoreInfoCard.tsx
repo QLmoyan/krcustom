@@ -1,19 +1,59 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { createInquiryProject } from "@/lib/actions/project";
 import { formatCount } from "@/lib/format";
 import { ko } from "@/messages";
 import type { Store } from "@/types";
 
-type StoreInfoCardProps = {
-  store: Store;
+type StoreInfoCardChatService = {
+  id: string;
+  title: string;
+  storeName: string;
 };
 
-export function StoreInfoCard({ store }: StoreInfoCardProps) {
+type StoreInfoCardProps = {
+  store: Store;
+  chatService?: StoreInfoCardChatService;
+};
+
+export function StoreInfoCard({ store, chatService }: StoreInfoCardProps) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
   const responseLabel = formatResponseLabel(store.responseTime);
   const completedLabel = `${ko.store.completedOrdersShort} ${formatCount(store.completedOrders)}${ko.store.orderUnit}`;
+
+  function startChat() {
+    if (!chatService) return;
+
+    setError(null);
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("serviceId", chatService.id);
+      formData.set("serviceTitle", chatService.title);
+      formData.set("storeName", chatService.storeName);
+
+      const result = await createInquiryProject(formData);
+
+      if (!result.ok) {
+        if (result.needAuth) {
+          const returnTo = encodeURIComponent(`/service/${chatService.id}`);
+          router.push(`/login?returnTo=${returnTo}`);
+          return;
+        }
+        setError(ko.service.createFailed);
+        return;
+      }
+
+      router.push(`/project/${result.projectId}`);
+      router.refresh();
+    });
+  }
 
   return (
     <section className="rounded-xl border border-[#E2E8F0] bg-white p-3.5">
@@ -52,14 +92,46 @@ export function StoreInfoCard({ store }: StoreInfoCardProps) {
           </ul>
         </div>
       </div>
-      <div className="mt-3">
-        <Link
-          href={`/store/${store.id}`}
-          className="inline-flex h-9 w-full items-center justify-center rounded-lg border border-[#CBD5E1] text-[13px] font-semibold text-[#0F172A] hover:bg-[#F8FAFC]"
-        >
-          {ko.service.visitStore}
-        </Link>
-      </div>
+
+      {error ? (
+        <p className="mt-3 break-keep text-[13px] text-[#DC2626]" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {chatService ? (
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <Button
+            href={`/store/${store.id}`}
+            variant="outline"
+            size="md"
+            className="w-full whitespace-nowrap px-2 text-[13px]"
+          >
+            {ko.service.visitStore}
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="md"
+            className="w-full whitespace-nowrap px-2 text-[13px]"
+            disabled={pending}
+            onClick={startChat}
+          >
+            {pending ? ko.service.creatingProject : ko.service.chatInquiry}
+          </Button>
+        </div>
+      ) : (
+        <div className="mt-3">
+          <Button
+            href={`/store/${store.id}`}
+            variant="outline"
+            size="md"
+            className="w-full text-[13px]"
+          >
+            {ko.service.visitStore}
+          </Button>
+        </div>
+      )}
     </section>
   );
 }

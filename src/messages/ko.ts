@@ -108,7 +108,7 @@ export const ko = {
       "반송",
     ],
     ownedItemCta: "채팅으로 소지품 제작 문의",
-    ownedItemChatHint: "위 채팅하기로 판매자에게 바로 문의해 주세요.",
+    ownedItemChatHint: "판매자 정보의 채팅하기로 문의해 주세요.",
     capabilitiesTitle: "서비스 능력",
     capabilityItems: "지원 품목",
     capabilityFiles: "지원 파일",
