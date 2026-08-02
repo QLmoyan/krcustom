@@ -9,7 +9,8 @@
 --   Optional Storage objects use path `{userId|demo}/{entityId}/{filename}`
 --   in buckets avatars | project-images | design-proofs | customer-items | public-assets.
 --   Binary seed upload is optional (no service_role required for App path).
--- Prerequisite: projects + quotes + design_proofs + orders migrations applied.
+-- Sprint 9: conversations/messages + notifications for prj-001 (Realtime-ready).
+-- Prerequisite: projects + quotes + design_proofs + orders + chat migrations applied.
 -- Idempotent: on conflict do update; items/revisions/versions/payments re-upserted by fixed UUIDs.
 
 insert into public.projects (
@@ -740,3 +741,348 @@ on conflict (id) do update set
   language = excluded.language,
   demo_key = excluded.demo_key,
   updated_at = now();
+
+-- ---------------------------------------------------------------------------
+-- Sprint 9: conversation + messages (prj-001) + notifications
+-- ---------------------------------------------------------------------------
+
+insert into public.conversations (
+  id,
+  project_id,
+  customer_id,
+  seller_id,
+  demo_key,
+  created_at,
+  updated_at
+)
+values (
+  '51111111-1111-4111-8111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
+  '33333333-3333-4333-8333-333333333333',
+  '44444444-4444-4444-8444-444444444444',
+  'conv-prj-001',
+  '2026-07-11 10:00:00+09',
+  '2026-07-14 11:35:00+09'
+)
+on conflict (id) do update set
+  project_id = excluded.project_id,
+  customer_id = excluded.customer_id,
+  seller_id = excluded.seller_id,
+  demo_key = excluded.demo_key,
+  updated_at = excluded.updated_at;
+
+insert into public.messages (
+  id, conversation_id, sender_id, sender_role, content_type, body, image_url, image_path,
+  is_read, read_at, demo_key, created_at
+)
+values
+  (
+    '52111111-1111-4111-8111-111111111101',
+    '51111111-1111-4111-8111-111111111111',
+    null,
+    'ADMIN',
+    'text',
+    '프로젝트가 생성되었습니다. 채팅·견적·시안·물품 현황을 이 화면에서 함께 확인할 수 있습니다.',
+    null,
+    null,
+    true,
+    '2026-07-11 10:01:00+09',
+    'm-01',
+    '2026-07-11 10:00:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111102',
+    '51111111-1111-4111-8111-111111111111',
+    '33333333-3333-4333-8333-333333333333',
+    'CUSTOMER',
+    'text',
+    '안녕하세요. 가지고 있는 흰색 티셔츠에 작은 로고를 자수하고 싶어요.',
+    null,
+    null,
+    true,
+    '2026-07-11 10:15:00+09',
+    'm-02',
+    '2026-07-11 10:12:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111103',
+    '51111111-1111-4111-8111-111111111111',
+    '33333333-3333-4333-8333-333333333333',
+    'CUSTOMER',
+    'image',
+    '현재 옷 상태 사진입니다.',
+    'https://picsum.photos/seed/krcustom-chat-item/480/360',
+    null,
+    true,
+    '2026-07-11 10:16:00+09',
+    'm-03',
+    '2026-07-11 10:13:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111104',
+    '51111111-1111-4111-8111-111111111111',
+    '44444444-4444-4444-8444-444444444444',
+    'SELLER',
+    'text',
+    '밝은 면 티셔츠라 자수 가능합니다. 로고 파일을 보내 주시면 시안을 제작해 드릴게요.',
+    null,
+    null,
+    true,
+    '2026-07-11 10:25:00+09',
+    'm-04',
+    '2026-07-11 10:22:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111105',
+    '51111111-1111-4111-8111-111111111111',
+    '33333333-3333-4333-8333-333333333333',
+    'CUSTOMER',
+    'text',
+    'PSD 원본 첨부했습니다. (logo_mark.psd · 8.4MB)',
+    null,
+    null,
+    true,
+    '2026-07-11 11:10:00+09',
+    'm-05',
+    '2026-07-11 11:05:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111106',
+    '51111111-1111-4111-8111-111111111111',
+    '33333333-3333-4333-8333-333333333333',
+    'CUSTOMER',
+    'text',
+    'logo_export.pdf · 420KB',
+    null,
+    null,
+    true,
+    '2026-07-11 11:10:00+09',
+    'm-06',
+    '2026-07-11 11:06:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111107',
+    '51111111-1111-4111-8111-111111111111',
+    '44444444-4444-4444-8444-444444444444',
+    'SELLER',
+    'image',
+    '최종 제작 시안이 잠겼습니다. 확인해 주세요. (V4)',
+    'https://picsum.photos/seed/krcustom-dp-v4a/480/360',
+    null,
+    true,
+    '2026-07-12 17:30:00+09',
+    'm-07',
+    '2026-07-12 17:25:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111108',
+    '51111111-1111-4111-8111-111111111111',
+    '44444444-4444-4444-8444-444444444444',
+    'SELLER',
+    'text',
+    '시안 확정 기준 견적서입니다. QT-20260712-008 · 64,800원 · 결제 완료',
+    null,
+    null,
+    true,
+    '2026-07-12 17:15:00+09',
+    'm-08',
+    '2026-07-12 17:10:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111109',
+    '51111111-1111-4111-8111-111111111111',
+    null,
+    'ADMIN',
+    'text',
+    '결제가 완료되었습니다. 안내된 주소로 물품을 발송해 주세요.',
+    null,
+    null,
+    true,
+    '2026-07-12 17:30:00+09',
+    'm-09',
+    '2026-07-12 17:28:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111110',
+    '51111111-1111-4111-8111-111111111111',
+    '44444444-4444-4444-8444-444444444444',
+    'SELLER',
+    'text',
+    '주문이 생성되었습니다. ORD-20260714-014 · 64,800원 · 고객 발송 완료',
+    null,
+    null,
+    true,
+    '2026-07-12 17:35:00+09',
+    'm-09b',
+    '2026-07-12 17:29:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111111',
+    '51111111-1111-4111-8111-111111111111',
+    '33333333-3333-4333-8333-333333333333',
+    'CUSTOMER',
+    'text',
+    '고객 물품을 발송했습니다. CJ대한통운 · 1234-5678-9012',
+    null,
+    null,
+    true,
+    '2026-07-14 11:25:00+09',
+    'm-10',
+    '2026-07-14 11:20:00+09'
+  ),
+  (
+    '52111111-1111-4111-8111-111111111112',
+    '51111111-1111-4111-8111-111111111111',
+    '44444444-4444-4444-8444-444444444444',
+    'SELLER',
+    'text',
+    '운송장 확인했습니다. 수령 후 개봉 사진과 물품 번호를 등록할게요.',
+    null,
+    null,
+    false,
+    null,
+    'm-11',
+    '2026-07-14 11:35:00+09'
+  )
+on conflict (id) do update set
+  conversation_id = excluded.conversation_id,
+  sender_id = excluded.sender_id,
+  sender_role = excluded.sender_role,
+  content_type = excluded.content_type,
+  body = excluded.body,
+  image_url = excluded.image_url,
+  image_path = excluded.image_path,
+  is_read = excluded.is_read,
+  read_at = excluded.read_at,
+  demo_key = excluded.demo_key,
+  created_at = excluded.created_at;
+
+insert into public.notifications (
+  id, user_id, type, title, body, link_path, entity_type, entity_id,
+  is_read, read_at, demo_key, created_at
+)
+values
+  (
+    '53111111-1111-4111-8111-111111111101',
+    '33333333-3333-4333-8333-333333333333',
+    'QUOTE_UPDATED',
+    '견적이 업데이트되었습니다',
+    '프로젝트를 확인하려면 견적서를 열어 주세요.',
+    '/project/prj-001',
+    'quote',
+    '21111111-1111-4111-8111-111111111113',
+    false,
+    null,
+    'notif-quote-updated',
+    '2026-07-12 17:10:00+09'
+  ),
+  (
+    '53111111-1111-4111-8111-111111111102',
+    '33333333-3333-4333-8333-333333333333',
+    'DESIGN_UPLOADED',
+    '새 시안이 업로드되었습니다',
+    '시안 확인 후 승인하거나 수정 요청을 남겨 주세요.',
+    '/design-proofs/dp-prj001-v3',
+    'design_proof',
+    null,
+    false,
+    null,
+    'notif-design-uploaded',
+    '2026-07-12 17:25:00+09'
+  ),
+  (
+    '53111111-1111-4111-8111-111111111103',
+    '33333333-3333-4333-8333-333333333333',
+    'DESIGN_APPROVED',
+    '시안이 승인되었습니다',
+    '확정된 시안 기준으로 제작을 진행할 수 있습니다.',
+    '/design-proofs/dp-prj001-v3',
+    'design_proof',
+    null,
+    true,
+    '2026-07-12 17:28:30+09',
+    'notif-design-approved',
+    '2026-07-12 17:28:00+09'
+  ),
+  (
+    '53111111-1111-4111-8111-111111111104',
+    '33333333-3333-4333-8333-333333333333',
+    'ORDER_CREATED',
+    '주문이 생성되었습니다',
+    '주문 상세와 결제 상태를 확인해 주세요.',
+    '/orders/ord-001',
+    'order',
+    null,
+    true,
+    '2026-07-12 17:29:30+09',
+    'notif-order-created',
+    '2026-07-12 17:29:00+09'
+  ),
+  (
+    '53111111-1111-4111-8111-111111111105',
+    '33333333-3333-4333-8333-333333333333',
+    'ORDER_PAID',
+    '결제가 완료되었습니다',
+    '고객 물품 발송 안내를 확인해 주세요.',
+    '/orders/ord-001',
+    'order',
+    null,
+    false,
+    null,
+    'notif-order-paid',
+    '2026-07-12 17:30:00+09'
+  ),
+  (
+    '53111111-1111-4111-8111-111111111106',
+    '33333333-3333-4333-8333-333333333333',
+    'PRODUCTION_STARTED',
+    '제작이 시작되었습니다',
+    '제작 진행 상황은 프로젝트에서 확인할 수 있습니다.',
+    '/project/prj-001',
+    'project',
+    '11111111-1111-4111-8111-111111111111',
+    true,
+    '2026-07-15 10:05:00+09',
+    'notif-production-started',
+    '2026-07-15 10:00:00+09'
+  ),
+  (
+    '53111111-1111-4111-8111-111111111107',
+    '33333333-3333-4333-8333-333333333333',
+    'SHIPPED',
+    '상품이 발송되었습니다',
+    '운송장 정보를 주문 상세에서 확인해 주세요.',
+    '/orders/ord-001',
+    'order',
+    null,
+    false,
+    null,
+    'notif-shipped',
+    '2026-07-18 14:00:00+09'
+  ),
+  (
+    '53111111-1111-4111-8111-111111111108',
+    '33333333-3333-4333-8333-333333333333',
+    'DELIVERED',
+    '배송이 완료되었습니다',
+    '수령 확인과 리뷰를 남겨 주세요.',
+    '/orders/ord-001',
+    'order',
+    null,
+    true,
+    '2026-07-20 11:05:00+09',
+    'notif-delivered',
+    '2026-07-20 11:00:00+09'
+  )
+on conflict (id) do update set
+  user_id = excluded.user_id,
+  type = excluded.type,
+  title = excluded.title,
+  body = excluded.body,
+  link_path = excluded.link_path,
+  entity_type = excluded.entity_type,
+  entity_id = excluded.entity_id,
+  is_read = excluded.is_read,
+  read_at = excluded.read_at,
+  demo_key = excluded.demo_key,
+  created_at = excluded.created_at;

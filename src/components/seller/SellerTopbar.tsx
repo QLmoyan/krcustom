@@ -8,6 +8,8 @@ type SellerTopbarProps = {
   storeName: string;
   sellerName: string;
   onOpenMenu?: () => void;
+  /** Unread notification count from provider (optional; keeps existing badge). */
+  unreadNotificationCount?: number;
 };
 
 export function SellerTopbar({
@@ -15,6 +17,7 @@ export function SellerTopbar({
   storeName,
   sellerName,
   onOpenMenu,
+  unreadNotificationCount = 0,
 }: SellerTopbarProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-[#E2E8F0] bg-white">
@@ -50,7 +53,9 @@ export function SellerTopbar({
             title="준비 중"
           >
             <span aria-hidden>◔</span>
-            <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#0F766E]" />
+            {unreadNotificationCount > 0 ? (
+              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#0F766E]" />
+            ) : null}
           </button>
           <div className="flex items-center gap-2 rounded-lg border border-[#E2E8F0] py-1 pl-1 pr-2.5">
             <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#134E4A] text-[11px] font-semibold text-white">

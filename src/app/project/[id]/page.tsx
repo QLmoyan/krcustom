@@ -10,12 +10,14 @@ import { ProjectOwnedItemModule } from "@/components/project/ProjectOwnedItemMod
 import { ProjectProductionModule } from "@/components/project/ProjectProductionModule";
 import { ProjectStatusModule } from "@/components/project/ProjectStatusModule";
 import { ProjectTimelineModule } from "@/components/project/ProjectTimelineModule";
+import { ProjectRealtimeRefresh } from "@/components/realtime/ProjectRealtimeRefresh";
 import { QuoteCard } from "@/components/quote/QuoteCard";
 import { QuoteHistoryModule } from "@/components/quote/QuoteHistoryModule";
 import { QuoteTimeline } from "@/components/quote/QuoteTimeline";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
+import { listMessagesByProjectId } from "@/lib/providers/chatProvider";
 import {
   getCustomerOwnedItemByProjectId,
   toProjectOwnedItemInfo,
@@ -70,6 +72,8 @@ export default async function ProjectWorkspacePage({
     await getCustomerOwnedItemByProjectId(id);
   const { events: timelineEvents, source: timelineSource } =
     await listTimelineEventsByProjectId(id);
+  const { messages: chatMessages, source: chatSource } =
+    await listMessagesByProjectId(id);
   const ownedItem = ownedItemDetail
     ? toProjectOwnedItemInfo(ownedItemDetail)
     : project.ownedItem;
@@ -81,13 +85,15 @@ export default async function ProjectWorkspacePage({
     designProofSource === "supabase" ||
     orderSource === "supabase" ||
     ownedItemSource === "supabase" ||
-    timelineSource === "supabase"
+    timelineSource === "supabase" ||
+    chatSource === "supabase"
       ? "supabase"
       : "mock";
 
   return (
     <div className="min-h-full bg-[#F8FAFC] pb-20 md:pb-8">
       <Header />
+      <ProjectRealtimeRefresh projectKey={id} />
 
       <main>
         <Container className="py-4 md:py-5">
@@ -127,7 +133,7 @@ export default async function ProjectWorkspacePage({
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] lg:items-start lg:gap-5">
             <div className="min-w-0 lg:sticky lg:top-[4.75rem] lg:h-[calc(100vh-6.5rem)]">
-              <ProjectChatPanel messages={project.messages} />
+              <ProjectChatPanel messages={chatMessages} />
             </div>
 
             <div className="min-w-0 space-y-3.5">

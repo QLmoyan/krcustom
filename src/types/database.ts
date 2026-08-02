@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -12,33 +12,46 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.15"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
+      conversations: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          demo_key: string | null
+          id: string
+          project_id: string | null
+          seller_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          demo_key?: string | null
+          id?: string
+          project_id?: string | null
+          seller_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          demo_key?: string | null
+          id?: string
+          project_id?: string | null
+          seller_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_owned_items: {
         Row: {
           brand: string
@@ -206,6 +219,104 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      messages: {
+        Row: {
+          body: string
+          content_type: string
+          conversation_id: string
+          created_at: string
+          demo_key: string | null
+          id: string
+          image_path: string | null
+          image_url: string | null
+          is_read: boolean
+          read_at: string | null
+          sender_id: string | null
+          sender_role: string
+        }
+        Insert: {
+          body?: string
+          content_type?: string
+          conversation_id: string
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          image_path?: string | null
+          image_url?: string | null
+          is_read?: boolean
+          read_at?: string | null
+          sender_id?: string | null
+          sender_role: string
+        }
+        Update: {
+          body?: string
+          content_type?: string
+          conversation_id?: string
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          image_path?: string | null
+          image_url?: string | null
+          is_read?: boolean
+          read_at?: string | null
+          sender_id?: string | null
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          demo_key: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          is_read: boolean
+          link_path: string | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          demo_key?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean
+          link_path?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          demo_key?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean
+          link_path?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -832,9 +943,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       user_role: ["CUSTOMER", "SELLER", "ADMIN"],
@@ -892,3 +1000,16 @@ export type ProfileRow = Tables<"profiles">;
 export type ProfileInsert = TablesInsert<"profiles">;
 export type ProfileUpdate = TablesUpdate<"profiles">;
 export type UserRoleEnum = Enums<"user_role">;
+
+/** Chat table aliases for app code */
+export type ConversationRow = Tables<"conversations">;
+export type ConversationInsert = TablesInsert<"conversations">;
+export type ConversationUpdate = TablesUpdate<"conversations">;
+export type MessageRow = Tables<"messages">;
+export type MessageInsert = TablesInsert<"messages">;
+export type MessageUpdate = TablesUpdate<"messages">;
+
+/** Notification table aliases for app code */
+export type NotificationRow = Tables<"notifications">;
+export type NotificationInsert = TablesInsert<"notifications">;
+export type NotificationUpdate = TablesUpdate<"notifications">;

@@ -9,6 +9,7 @@ type SellerLayoutProps = {
   storeName: string;
   sellerName: string;
   children: ReactNode;
+  unreadNotificationCount?: number;
 };
 
 export function SellerLayout({
@@ -16,6 +17,7 @@ export function SellerLayout({
   storeName,
   sellerName,
   children,
+  unreadNotificationCount = 0,
 }: SellerLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   // Reserved for future collapsed desktop sidebar
@@ -35,6 +37,7 @@ export function SellerLayout({
             storeName={storeName}
             sellerName={sellerName}
             onOpenMenu={() => setMobileOpen(true)}
+            unreadNotificationCount={unreadNotificationCount}
           />
           <div className="flex-1 overflow-x-hidden px-4 py-4 md:px-6 md:py-5">
             {children}
