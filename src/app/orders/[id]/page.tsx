@@ -5,7 +5,10 @@ import { CustomerOrderDetailView } from "@/components/order/CustomerOrderDetailV
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
-import { getOrderById } from "@/data/mockOrders";
+import {
+  getOrderById,
+  getPaymentByOrderId,
+} from "@/lib/providers/orderProvider";
 import { ko } from "@/messages";
 
 type OrderDetailPageProps = {
@@ -14,7 +17,7 @@ type OrderDetailPageProps = {
 
 export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
   const { id } = await params;
-  const order = getOrderById(id);
+  const { order } = await getOrderById(id);
 
   if (!order) {
     return (
@@ -33,12 +36,14 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     );
   }
 
+  const { payment } = await getPaymentByOrderId(id);
+
   return (
     <div className="min-h-full bg-[#F8FAFC] pb-20 md:pb-8">
       <Header />
       <main>
         <Container className="py-4 md:py-5">
-          <CustomerOrderDetailView order={order} />
+          <CustomerOrderDetailView order={order} payment={payment} />
         </Container>
       </main>
       {id === DEMO.orderId ? <DemoFlowHint step={6} /> : null}

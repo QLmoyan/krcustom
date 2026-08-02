@@ -5,8 +5,10 @@ import { PaymentResultView } from "@/components/payment/PaymentResultView";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
-import { getOrderById } from "@/data/mockOrders";
-import { getPaymentByOrderId } from "@/data/mockPayments";
+import {
+  getOrderById,
+  getPaymentByOrderId,
+} from "@/lib/providers/orderProvider";
 import { ko } from "@/messages";
 
 type SuccessPageProps = {
@@ -15,7 +17,7 @@ type SuccessPageProps = {
 
 export default async function CheckoutSuccessPage({ params }: SuccessPageProps) {
   const { orderId } = await params;
-  const order = getOrderById(orderId);
+  const { order } = await getOrderById(orderId);
 
   if (!order) {
     return (
@@ -34,7 +36,7 @@ export default async function CheckoutSuccessPage({ params }: SuccessPageProps) 
     );
   }
 
-  const payment = getPaymentByOrderId(order.id);
+  const { payment } = await getPaymentByOrderId(orderId);
 
   return (
     <div className="min-h-full bg-[#F8FAFC] pb-20 md:pb-8">

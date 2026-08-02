@@ -130,6 +130,175 @@ export type Database = {
           },
         ]
       }
+      order_items: {
+        Row: {
+          created_at: string
+          demo_key: string | null
+          id: string
+          item_name: string
+          order_id: string
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          item_name: string
+          order_id: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          item_name?: string
+          order_id?: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          currency: string
+          customer_id: string
+          demo_key: string | null
+          discount: number
+          id: string
+          order_number: string
+          payment_status: string
+          production_status: string
+          project_id: string
+          quote_id: string | null
+          seller_id: string
+          shipping_fee: number
+          shipping_status: string
+          status: string
+          subtotal: number
+          tax: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer_id: string
+          demo_key?: string | null
+          discount?: number
+          id?: string
+          order_number: string
+          payment_status?: string
+          production_status?: string
+          project_id: string
+          quote_id?: string | null
+          seller_id: string
+          shipping_fee?: number
+          shipping_status?: string
+          status: string
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer_id?: string
+          demo_key?: string | null
+          discount?: number
+          id?: string
+          order_number?: string
+          payment_status?: string
+          production_status?: string
+          project_id?: string
+          quote_id?: string | null
+          seller_id?: string
+          shipping_fee?: number
+          shipping_status?: string
+          status?: string
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_records: {
+        Row: {
+          amount: number
+          created_at: string
+          demo_key: string | null
+          id: string
+          method: string
+          order_id: string
+          paid_at: string | null
+          status: string
+          transaction_no: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          method: string
+          order_id: string
+          paid_at?: string | null
+          status: string
+          transaction_no?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          method?: string
+          order_id?: string
+          paid_at?: string | null
+          status?: string
+          transaction_no?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_records_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
@@ -508,3 +677,14 @@ export type DesignProofUpdate = TablesUpdate<"design_proofs">;
 export type DesignProofVersionRow = Tables<"design_proof_versions">;
 export type DesignProofVersionInsert = TablesInsert<"design_proof_versions">;
 export type DesignProofVersionUpdate = TablesUpdate<"design_proof_versions">;
+
+/** Order table aliases for app code */
+export type OrderRow = Tables<"orders">;
+export type OrderInsert = TablesInsert<"orders">;
+export type OrderUpdate = TablesUpdate<"orders">;
+export type OrderItemRow = Tables<"order_items">;
+export type OrderItemInsert = TablesInsert<"order_items">;
+export type OrderItemUpdate = TablesUpdate<"order_items">;
+export type PaymentRecordRow = Tables<"payment_records">;
+export type PaymentRecordInsert = TablesInsert<"payment_records">;
+export type PaymentRecordUpdate = TablesUpdate<"payment_records">;

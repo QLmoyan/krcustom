@@ -9,15 +9,20 @@ import { getPaymentByOrderId, paymentMethodLabel } from "@/data/mockPayments";
 import { formatKRW } from "@/lib/format";
 import { ko } from "@/messages";
 import type { Order } from "@/types/Order";
+import type { Payment } from "@/types/Payment";
 
 const copy = ko.order;
 
 type SellerOrderDetailViewProps = {
   order: Order;
+  payment?: Payment;
 };
 
-export function SellerOrderDetailView({ order }: SellerOrderDetailViewProps) {
-  const payment = getPaymentByOrderId(order.id);
+export function SellerOrderDetailView({
+  order,
+  payment: paymentProp,
+}: SellerOrderDetailViewProps) {
+  const payment = paymentProp ?? getPaymentByOrderId(order.id);
 
   return (
     <div className="mx-auto w-full max-w-[1100px] space-y-4">

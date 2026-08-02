@@ -3,8 +3,10 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PaymentResultView } from "@/components/payment/PaymentResultView";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { getOrderById } from "@/data/mockOrders";
-import { getPaymentByOrderId } from "@/data/mockPayments";
+import {
+  getOrderById,
+  getPaymentByOrderId,
+} from "@/lib/providers/orderProvider";
 import { ko } from "@/messages";
 
 type FailurePageProps = {
@@ -13,7 +15,7 @@ type FailurePageProps = {
 
 export default async function CheckoutFailurePage({ params }: FailurePageProps) {
   const { orderId } = await params;
-  const order = getOrderById(orderId);
+  const { order } = await getOrderById(orderId);
 
   if (!order) {
     return (
@@ -32,7 +34,9 @@ export default async function CheckoutFailurePage({ params }: FailurePageProps) 
     );
   }
 
-  const payment = getPaymentByOrderId(order.id) ?? getPaymentByOrderId("ord-004");
+  const { payment } = await getPaymentByOrderId(orderId);
+  const failurePayment =
+    payment ?? (await getPaymentByOrderId("ord-004")).payment;
 
   return (
     <div className="min-h-full bg-[#F8FAFC] pb-20 md:pb-8">
@@ -42,7 +46,7 @@ export default async function CheckoutFailurePage({ params }: FailurePageProps) 
           <PaymentResultView
             variant="failure"
             order={order}
-            payment={payment}
+            payment={failurePayment}
           />
         </Container>
       </main>

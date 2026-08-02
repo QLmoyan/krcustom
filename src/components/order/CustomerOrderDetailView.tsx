@@ -9,15 +9,20 @@ import { getPaymentByOrderId, paymentMethodLabel } from "@/data/mockPayments";
 import { formatKRW, formatKoreanPhone } from "@/lib/format";
 import { ko } from "@/messages";
 import type { Order } from "@/types/Order";
+import type { Payment } from "@/types/Payment";
 
 const copy = ko.order;
 
 type CustomerOrderDetailViewProps = {
   order: Order;
+  payment?: Payment;
 };
 
-export function CustomerOrderDetailView({ order }: CustomerOrderDetailViewProps) {
-  const payment = getPaymentByOrderId(order.id);
+export function CustomerOrderDetailView({
+  order,
+  payment: paymentProp,
+}: CustomerOrderDetailViewProps) {
+  const payment = paymentProp ?? getPaymentByOrderId(order.id);
   const needPay =
     order.status === "PAYMENT_PENDING" || order.status === "PAYMENT_FAILED";
 

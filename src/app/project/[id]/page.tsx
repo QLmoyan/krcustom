@@ -16,8 +16,8 @@ import { QuoteTimeline } from "@/components/quote/QuoteTimeline";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
-import { getOrderByProjectId } from "@/data/mockOrders";
 import { getDesignProofsByProjectId } from "@/lib/providers/designProofProvider";
+import { getOrderByProjectId } from "@/lib/providers/orderProvider";
 import { getProjectById } from "@/lib/providers/projectProvider";
 import {
   getLatestQuote,
@@ -60,11 +60,12 @@ export default async function ProjectWorkspacePage({
   const quoteTimeline = await getQuoteTimeline(id);
   const { proofs: designProofs, source: designProofSource } =
     await getDesignProofsByProjectId(id);
-  const order = getOrderByProjectId(id);
+  const { order, source: orderSource } = await getOrderByProjectId(id);
   const dataSource =
     source === "supabase" ||
     quoteSource === "supabase" ||
-    designProofSource === "supabase"
+    designProofSource === "supabase" ||
+    orderSource === "supabase"
       ? "supabase"
       : "mock";
 

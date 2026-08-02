@@ -1,9 +1,11 @@
--- Sprint 7 Phase 2 + Phase 3 + Phase 4 seed
+-- Sprint 7 Phase 2 + Phase 3 + Phase 4 + Phase 5 seed
 -- Project: id = UUID PK; demo_key = frontend route key (prj-001)
 -- Quotes: V1/V2/V3 for prj-001; demo_key = frontend quote ids; final total = 64800
 -- Design proofs: V1/V2/V3 for prj-001; V3 status CONFIRMED (Approved)
--- Prerequisite: projects + quotes + design_proofs migrations applied.
--- Idempotent: on conflict do update; items/revisions/versions re-upserted by fixed UUIDs.
+-- Orders: ord-001 for prj-001; order_number ORD-20260802-001; total 64800;
+--   status COMPLETED, payment PAID, production FINISHED, shipping DELIVERED
+-- Prerequisite: projects + quotes + design_proofs + orders migrations applied.
+-- Idempotent: on conflict do update; items/revisions/versions/payments re-upserted by fixed UUIDs.
 
 insert into public.projects (
   id,
@@ -299,3 +301,120 @@ on conflict (id) do update set
   notes = excluded.notes,
   demo_key = excluded.demo_key,
   created_at = excluded.created_at;
+
+-- ---------------------------------------------------------------------------
+-- Order + items + payment (prj-001 / ord-001) — Completed delivery, 64,800원
+-- Linked to Quote V3 (ACCEPTED)
+-- ---------------------------------------------------------------------------
+
+insert into public.orders (
+  id,
+  project_id,
+  quote_id,
+  seller_id,
+  customer_id,
+  order_number,
+  status,
+  subtotal,
+  shipping_fee,
+  discount,
+  tax,
+  total,
+  currency,
+  payment_status,
+  production_status,
+  shipping_status,
+  demo_key,
+  created_at,
+  updated_at
+)
+values (
+  '71111111-1111-4111-8111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
+  '21111111-1111-4111-8111-111111111113',
+  '44444444-4444-4444-8444-444444444444',
+  '33333333-3333-4333-8333-333333333333',
+  'ORD-20260802-001',
+  'COMPLETED',
+  64800,
+  0,
+  0,
+  0,
+  64800,
+  'KRW',
+  'PAID',
+  'FINISHED',
+  'DELIVERED',
+  'ord-001',
+  '2026-07-12 17:20:00+09',
+  '2026-07-12 17:28:00+09'
+)
+on conflict (id) do update set
+  project_id = excluded.project_id,
+  quote_id = excluded.quote_id,
+  seller_id = excluded.seller_id,
+  customer_id = excluded.customer_id,
+  order_number = excluded.order_number,
+  status = excluded.status,
+  subtotal = excluded.subtotal,
+  shipping_fee = excluded.shipping_fee,
+  discount = excluded.discount,
+  tax = excluded.tax,
+  total = excluded.total,
+  currency = excluded.currency,
+  payment_status = excluded.payment_status,
+  production_status = excluded.production_status,
+  shipping_status = excluded.shipping_status,
+  demo_key = excluded.demo_key,
+  created_at = excluded.created_at,
+  updated_at = excluded.updated_at;
+
+insert into public.order_items (
+  id, order_id, item_name, quantity, unit_price, total_price, demo_key
+)
+values
+  ('81111111-1111-4111-8111-111111111111', '71111111-1111-4111-8111-111111111111', '로고 자수', 1, 45000, 45000, 'oi-1'),
+  ('81111111-1111-4111-8111-111111111112', '71111111-1111-4111-8111-111111111111', '고객 소지품 검수·라벨', 1, 8000, 8000, 'oi-2'),
+  ('81111111-1111-4111-8111-111111111113', '71111111-1111-4111-8111-111111111111', '반송 포장·배송', 1, 11800, 11800, 'oi-3')
+on conflict (id) do update set
+  order_id = excluded.order_id,
+  item_name = excluded.item_name,
+  quantity = excluded.quantity,
+  unit_price = excluded.unit_price,
+  total_price = excluded.total_price,
+  demo_key = excluded.demo_key;
+
+insert into public.payment_records (
+  id,
+  order_id,
+  method,
+  status,
+  amount,
+  transaction_no,
+  paid_at,
+  demo_key,
+  created_at,
+  updated_at
+)
+values (
+  '91111111-1111-4111-8111-111111111111',
+  '71111111-1111-4111-8111-111111111111',
+  'CREDIT_CARD',
+  'PAID',
+  64800,
+  'TXN-64800-001',
+  '2026-07-12 17:28:00+09',
+  'pay-001',
+  '2026-07-12 17:22:00+09',
+  '2026-07-12 17:28:00+09'
+)
+on conflict (id) do update set
+  order_id = excluded.order_id,
+  method = excluded.method,
+  status = excluded.status,
+  amount = excluded.amount,
+  transaction_no = excluded.transaction_no,
+  paid_at = excluded.paid_at,
+  demo_key = excluded.demo_key,
+  created_at = excluded.created_at,
+  updated_at = excluded.updated_at;

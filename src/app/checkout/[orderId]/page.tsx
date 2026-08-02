@@ -5,7 +5,7 @@ import { CheckoutView } from "@/components/payment/CheckoutView";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
-import { getOrderById } from "@/data/mockOrders";
+import { getOrderById } from "@/lib/providers/orderProvider";
 import { ko } from "@/messages";
 
 type CheckoutPageProps = {
@@ -14,7 +14,7 @@ type CheckoutPageProps = {
 
 export default async function CheckoutPage({ params }: CheckoutPageProps) {
   const { orderId } = await params;
-  const order = getOrderById(orderId);
+  const { order } = await getOrderById(orderId);
 
   if (!order) {
     return (

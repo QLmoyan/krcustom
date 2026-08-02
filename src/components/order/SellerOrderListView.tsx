@@ -6,8 +6,6 @@ import { OrderCard } from "@/components/order/OrderCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { OrderStatus, getStatusLabel } from "@/constants/status";
 import {
-  getOrdersByCustomer,
-  mockOrders,
   orderTypeLabel,
   getSellerOrderStats,
 } from "@/data/mockOrders";
@@ -42,11 +40,14 @@ const statusFilters: Array<"all" | OrderStatusCode> = [
   OrderStatus.PAYMENT_FAILED,
 ];
 
-export function CustomerOrderListView() {
+type CustomerOrderListViewProps = {
+  orders: Order[];
+};
+
+export function CustomerOrderListView({ orders }: CustomerOrderListViewProps) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | OrderStatusCode>("all");
   const [type, setType] = useState<"" | OrderType>("");
-  const orders = getOrdersByCustomer();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -116,15 +117,19 @@ export function CustomerOrderListView() {
   );
 }
 
-export function SellerOrderListView() {
+type SellerOrderListViewProps = {
+  orders: Order[];
+};
+
+export function SellerOrderListView({ orders }: SellerOrderListViewProps) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | OrderStatusCode>("all");
   const [type, setType] = useState<"" | OrderType>("");
-  const stats = getSellerOrderStats();
+  const stats = getSellerOrderStats(orders);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return mockOrders.filter((order) => {
+    return orders.filter((order) => {
       if (status !== "all" && order.status !== status) return false;
       if (type && order.orderType !== type) return false;
       if (!q) return true;
@@ -134,7 +139,7 @@ export function SellerOrderListView() {
         order.serviceName.toLowerCase().includes(q)
       );
     });
-  }, [query, status, type]);
+  }, [orders, query, status, type]);
 
   return (
     <div className="mx-auto w-full max-w-[1280px] space-y-4">
