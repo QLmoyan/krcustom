@@ -16,14 +16,14 @@ import { QuoteTimeline } from "@/components/quote/QuoteTimeline";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
+import { getDesignProofsByProjectId } from "@/data/mockDesignProofs";
+import { getOrderByProjectId } from "@/data/mockOrders";
+import { getProjectById } from "@/lib/providers/projectProvider";
 import {
   getLatestQuote,
   getQuotesByProjectId,
   getQuoteTimeline,
-} from "@/data/mockQuotes";
-import { getDesignProofsByProjectId } from "@/data/mockDesignProofs";
-import { getOrderByProjectId } from "@/data/mockOrders";
-import { getProjectById } from "@/lib/providers/projectProvider";
+} from "@/lib/providers/quoteProvider";
 import { ko } from "@/messages";
 
 type ProjectWorkspacePageProps = {
@@ -55,11 +55,14 @@ export default async function ProjectWorkspacePage({
     );
   }
 
-  const quotes = getQuotesByProjectId(id);
-  const latestQuote = getLatestQuote(id);
-  const quoteTimeline = getQuoteTimeline(id);
+  const { quotes, source: quoteSource } = await getQuotesByProjectId(id);
+  const { quote: latestQuote } = await getLatestQuote(id);
+  const quoteTimeline = await getQuoteTimeline(id);
   const designProofs = getDesignProofsByProjectId(id);
   const order = getOrderByProjectId(id);
+  const dataSource = source === "supabase" || quoteSource === "supabase"
+    ? "supabase"
+    : "mock";
 
   return (
     <div className="min-h-full bg-[#F8FAFC] pb-20 md:pb-8">
@@ -136,7 +139,7 @@ export default async function ProjectWorkspacePage({
             DATA SOURCE
           </p>
           <p className="text-[11px] font-semibold text-[#0F172A]">
-            {source === "supabase" ? "Supabase" : "Mock"}
+            {dataSource === "supabase" ? "Supabase" : "Mock"}
           </p>
         </div>
       ) : null}

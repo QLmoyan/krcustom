@@ -7,10 +7,9 @@ import {
   quoteStatusLabel,
 } from "@/components/quote/QuoteCard";
 import { QuoteStatus } from "@/constants/status";
-import { mockQuotes } from "@/data/mockQuotes";
 import { formatKRW } from "@/lib/format";
 import { ko } from "@/messages";
-import type { QuoteStatus as QuoteStatusCode } from "@/types/Quote";
+import type { Quote, QuoteStatus as QuoteStatusCode } from "@/types/Quote";
 
 const copy = ko.quote;
 
@@ -55,32 +54,36 @@ const tabs: { key: TabKey; label: string; status?: QuoteStatusCode }[] = [
   },
 ];
 
-export function SellerQuoteListView() {
+type SellerQuoteListViewProps = {
+  quotes: Quote[];
+};
+
+export function SellerQuoteListView({ quotes }: SellerQuoteListViewProps) {
   const [tab, setTab] = useState<TabKey>("all");
 
   const filtered = useMemo(() => {
-    if (tab === "all") return mockQuotes;
-    return mockQuotes.filter((quote) => quote.status === tab);
-  }, [tab]);
+    if (tab === "all") return quotes;
+    return quotes.filter((quote) => quote.status === tab);
+  }, [quotes, tab]);
 
   const counts = useMemo(() => {
     return {
-      all: mockQuotes.length,
-      DRAFT: mockQuotes.filter((q) => q.status === QuoteStatus.DRAFT).length,
-      SENT: mockQuotes.filter((q) => q.status === QuoteStatus.SENT).length,
-      REVISION_REQUESTED: mockQuotes.filter(
+      all: quotes.length,
+      DRAFT: quotes.filter((q) => q.status === QuoteStatus.DRAFT).length,
+      SENT: quotes.filter((q) => q.status === QuoteStatus.SENT).length,
+      REVISION_REQUESTED: quotes.filter(
         (q) => q.status === QuoteStatus.REVISION_REQUESTED,
       ).length,
-      ACCEPTED: mockQuotes.filter((q) => q.status === QuoteStatus.ACCEPTED)
+      ACCEPTED: quotes.filter((q) => q.status === QuoteStatus.ACCEPTED)
         .length,
-      EXPIRED: mockQuotes.filter((q) => q.status === QuoteStatus.EXPIRED)
+      EXPIRED: quotes.filter((q) => q.status === QuoteStatus.EXPIRED)
         .length,
-      REJECTED: mockQuotes.filter((q) => q.status === QuoteStatus.REJECTED)
+      REJECTED: quotes.filter((q) => q.status === QuoteStatus.REJECTED)
         .length,
-      CANCELLED: mockQuotes.filter((q) => q.status === QuoteStatus.CANCELLED)
+      CANCELLED: quotes.filter((q) => q.status === QuoteStatus.CANCELLED)
         .length,
     };
-  }, []);
+  }, [quotes]);
 
   return (
     <div className="mx-auto w-full max-w-[1280px] space-y-4">

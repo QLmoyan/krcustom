@@ -81,6 +81,177 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_items: {
+        Row: {
+          amount: number
+          created_at: string
+          demo_key: string | null
+          description: string
+          editable: boolean
+          id: string
+          name: string
+          quantity: number
+          quote_id: string
+          sort_order: number
+          unit_price: number
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          demo_key?: string | null
+          description?: string
+          editable?: boolean
+          id?: string
+          name: string
+          quantity?: number
+          quote_id: string
+          sort_order?: number
+          unit_price?: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          demo_key?: string | null
+          description?: string
+          editable?: boolean
+          id?: string
+          name?: string
+          quantity?: number
+          quote_id?: string
+          sort_order?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_revisions: {
+        Row: {
+          actor: string
+          created_at: string
+          demo_key: string | null
+          id: string
+          occurred_at: string
+          quote_id: string
+          summary: string
+          version: number
+        }
+        Insert: {
+          actor?: string
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          occurred_at?: string
+          quote_id: string
+          summary: string
+          version: number
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          occurred_at?: string
+          quote_id?: string
+          summary?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_revisions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          approved_at: string | null
+          approved_by: string
+          created_at: string
+          created_by: string
+          currency: string
+          customer_confirmed: boolean
+          demo_key: string | null
+          discount: number
+          expires_at: string | null
+          extra_fee: number
+          id: string
+          note: string
+          project_id: string
+          sent_at: string | null
+          shipping_fee: number
+          status: string
+          subtotal: number
+          tax: number
+          total: number
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string
+          created_at?: string
+          created_by?: string
+          currency?: string
+          customer_confirmed?: boolean
+          demo_key?: string | null
+          discount?: number
+          expires_at?: string | null
+          extra_fee?: number
+          id?: string
+          note?: string
+          project_id: string
+          sent_at?: string | null
+          shipping_fee?: number
+          status: string
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+          version: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string
+          created_at?: string
+          created_by?: string
+          currency?: string
+          customer_confirmed?: boolean
+          demo_key?: string | null
+          discount?: number
+          expires_at?: string | null
+          extra_fee?: number
+          id?: string
+          note?: string
+          project_id?: string
+          sent_at?: string | null
+          shipping_fee?: number
+          status?: string
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -227,3 +398,14 @@ export const Constants = {
 export type ProjectRow = Tables<"projects">;
 export type ProjectInsert = TablesInsert<"projects">;
 export type ProjectUpdate = TablesUpdate<"projects">;
+
+/** Quote table aliases for app code */
+export type QuoteRow = Tables<"quotes">;
+export type QuoteInsert = TablesInsert<"quotes">;
+export type QuoteUpdate = TablesUpdate<"quotes">;
+export type QuoteItemRow = Tables<"quote_items">;
+export type QuoteItemInsert = TablesInsert<"quote_items">;
+export type QuoteItemUpdate = TablesUpdate<"quote_items">;
+export type QuoteRevisionRow = Tables<"quote_revisions">;
+export type QuoteRevisionInsert = TablesInsert<"quote_revisions">;
+export type QuoteRevisionUpdate = TablesUpdate<"quote_revisions">;

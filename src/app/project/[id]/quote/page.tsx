@@ -5,8 +5,11 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { QuoteBuilder } from "@/components/quote/QuoteBuilder";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { getLatestQuote, getQuotesByProjectId } from "@/data/mockQuotes";
-import { getProjectById } from "@/data/mockProject";
+import { getProjectById } from "@/lib/providers/projectProvider";
+import {
+  getLatestQuote,
+  getQuotesByProjectId,
+} from "@/lib/providers/quoteProvider";
 import { ko } from "@/messages";
 import type { Quote } from "@/types/Quote";
 
@@ -18,9 +21,9 @@ export default async function QuoteBuilderPage({
   params,
 }: QuoteBuilderPageProps) {
   const { id } = await params;
-  const project = getProjectById(id);
-  const quotes = getQuotesByProjectId(id);
-  const latest = getLatestQuote(id);
+  const { project } = await getProjectById(id);
+  const { quotes } = await getQuotesByProjectId(id);
+  const { quote: latest } = await getLatestQuote(id);
 
   const builderQuote: Quote | undefined =
     latest ??
