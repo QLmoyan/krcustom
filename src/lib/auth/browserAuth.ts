@@ -3,7 +3,13 @@
  * Avoid importing authProvider / server repositories from the client bundle.
  */
 
+"use client";
+
 import { createClient } from "@/lib/supabase/client";
+import {
+  isSupabaseConfigured,
+  SUPABASE_NOT_CONFIGURED,
+} from "@/lib/supabase/env";
 import type {
   AuthActionResult,
   SignInInput,
@@ -18,18 +24,18 @@ function toMessage(error: unknown): string {
   return "Auth request failed";
 }
 
-function isConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+function isMissingEnvMessage(message: string): boolean {
+  return (
+    message === SUPABASE_NOT_CONFIGURED ||
+    message.includes("Missing environment variable: NEXT_PUBLIC_SUPABASE")
   );
 }
 
 export async function browserSignIn(
   input: SignInInput,
 ): Promise<AuthActionResult> {
-  if (!isConfigured()) {
-    return { ok: false, error: "Supabase is not configured" };
+  if (!isSupabaseConfigured()) {
+    return { ok: false, error: SUPABASE_NOT_CONFIGURED };
   }
 
   try {
@@ -48,7 +54,13 @@ export async function browserSignIn(
 
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: toMessage(error) };
+    const message = toMessage(error);
+    return {
+      ok: false,
+      error: isMissingEnvMessage(message)
+        ? SUPABASE_NOT_CONFIGURED
+        : message,
+    };
   }
 }
 
@@ -59,8 +71,8 @@ export type BrowserSignUpResult = AuthActionResult & {
 export async function browserSignUp(
   input: SignUpInput,
 ): Promise<BrowserSignUpResult> {
-  if (!isConfigured()) {
-    return { ok: false, error: "Supabase is not configured" };
+  if (!isSupabaseConfigured()) {
+    return { ok: false, error: SUPABASE_NOT_CONFIGURED };
   }
 
   try {
@@ -91,12 +103,18 @@ export async function browserSignUp(
       sessionCreated: Boolean(data.session),
     };
   } catch (error) {
-    return { ok: false, error: toMessage(error) };
+    const message = toMessage(error);
+    return {
+      ok: false,
+      error: isMissingEnvMessage(message)
+        ? SUPABASE_NOT_CONFIGURED
+        : message,
+    };
   }
 }
 
 export async function browserSignOut(): Promise<AuthActionResult> {
-  if (!isConfigured()) {
+  if (!isSupabaseConfigured()) {
     return { ok: true };
   }
 
@@ -108,6 +126,12 @@ export async function browserSignOut(): Promise<AuthActionResult> {
     }
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: toMessage(error) };
+    const message = toMessage(error);
+    return {
+      ok: false,
+      error: isMissingEnvMessage(message)
+        ? SUPABASE_NOT_CONFIGURED
+        : message,
+    };
   }
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { browserSignOut } from "@/lib/auth/browserAuth";
 import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { ko } from "@/messages";
 
 type AuthNavState =
@@ -17,10 +18,7 @@ type HeaderAuthNavProps = {
   onNavigate?: () => void;
 };
 
-const supabaseConfigured = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-);
+const supabaseConfigured = isSupabaseConfigured();
 
 export function HeaderAuthNav({
   compact = false,

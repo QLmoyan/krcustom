@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
+import {
+  getSupabasePublishableKey,
+  getSupabaseUrl,
+} from "./src/lib/supabase/env";
 
 function supabaseImageHost(): string | undefined {
-  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const raw = getSupabaseUrl();
   if (!raw) return undefined;
   try {
     return new URL(raw).hostname;
@@ -10,9 +14,18 @@ function supabaseImageHost(): string | undefined {
   }
 }
 
+const supabaseUrl = getSupabaseUrl() ?? "";
+const supabasePublishableKey = getSupabasePublishableKey() ?? "";
 const supabaseHost = supabaseImageHost();
 
 const nextConfig: NextConfig = {
+  // Map resolved public env (incl. legacy ANON fallback) into the browser bundle.
+  env: {
+    ...(supabaseUrl ? { NEXT_PUBLIC_SUPABASE_URL: supabaseUrl } : {}),
+    ...(supabasePublishableKey
+      ? { NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: supabasePublishableKey }
+      : {}),
+  },
   images: {
     remotePatterns: [
       {

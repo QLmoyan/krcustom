@@ -1,4 +1,3 @@
-import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { mapProfileRow } from "@/repositories/profile/map";
 import type {
@@ -98,12 +97,12 @@ export async function getCurrentAuthUser(): Promise<AuthUser | null> {
   return toAuthUser(supabase, user);
 }
 
-/** Browser: email/password sign-in. */
+/** Server Action / Route Handler: email/password sign-in (sets auth cookies). */
 export async function signInWithPassword(
   input: SignInInput,
 ): Promise<AuthActionResult> {
   try {
-    const supabase = createBrowserClient();
+    const supabase = await createServerClient();
     const { data, error } = await supabase.auth.signInWithPassword({
       email: input.email,
       password: input.password,
@@ -118,6 +117,7 @@ export async function signInWithPassword(
 
     return {
       ok: true,
+      sessionCreated: Boolean(data.session),
       user: await toAuthUser(supabase, data.user),
     };
   } catch (error) {
@@ -125,10 +125,10 @@ export async function signInWithPassword(
   }
 }
 
-/** Browser: email/password register (profile via auth trigger). */
+/** Server Action: email/password register (profile via auth trigger). */
 export async function signUp(input: SignUpInput): Promise<AuthActionResult> {
   try {
-    const supabase = createBrowserClient();
+    const supabase = await createServerClient();
     const role: UserRole = input.role ?? "CUSTOMER";
 
     const { data, error } = await supabase.auth.signUp({
@@ -152,6 +152,7 @@ export async function signUp(input: SignUpInput): Promise<AuthActionResult> {
 
     return {
       ok: true,
+      sessionCreated: Boolean(data.session),
       user: await toAuthUser(supabase, data.user),
     };
   } catch (error) {
@@ -159,10 +160,10 @@ export async function signUp(input: SignUpInput): Promise<AuthActionResult> {
   }
 }
 
-/** Browser: sign out and clear auth cookies. */
+/** Server Action: sign out and clear auth cookies. */
 export async function signOut(): Promise<AuthActionResult> {
   try {
-    const supabase = createBrowserClient();
+    const supabase = await createServerClient();
     const { error } = await supabase.auth.signOut();
     if (error) {
       return { ok: false, error: error.message };
@@ -173,12 +174,12 @@ export async function signOut(): Promise<AuthActionResult> {
   }
 }
 
-/** Browser: send password-reset email. */
+/** Server Action: send password-reset email. */
 export async function resetPasswordForEmail(
   input: ResetPasswordInput,
 ): Promise<AuthActionResult> {
   try {
-    const supabase = createBrowserClient();
+    const supabase = await createServerClient();
     const { error } = await supabase.auth.resetPasswordForEmail(input.email, {
       redirectTo: input.redirectTo,
     });

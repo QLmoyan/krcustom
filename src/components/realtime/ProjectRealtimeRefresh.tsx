@@ -1,6 +1,7 @@
 "use client";
 
 import { useRealtimeRefresh, type RealtimeTable } from "@/lib/realtime/useRealtimeRefresh";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 type ProjectRealtimeRefreshProps = {
   /** Stable channel key (project demo_key or UUID). */
@@ -26,10 +27,7 @@ const PROJECT_TABLES: RealtimeTable[] = [
 export function ProjectRealtimeRefresh({
   projectKey,
 }: ProjectRealtimeRefreshProps) {
-  const supabaseConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-  );
+  const supabaseConfigured = isSupabaseConfigured();
 
   useRealtimeRefresh({
     tables: PROJECT_TABLES,

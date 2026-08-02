@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSupabasePublishableKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 /**
  * Refresh Supabase Auth cookies on each request.
@@ -10,8 +11,8 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const url = getSupabaseUrl();
+  const publishableKey = getSupabasePublishableKey();
 
   if (!url || !publishableKey) {
     return supabaseResponse;

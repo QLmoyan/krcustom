@@ -11,6 +11,7 @@ import {
   workflowTimelineDescription,
   workflowTimelineTitle,
 } from "@/lib/workflow/messages";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { TimelineActorType } from "@/types/TimelineEvent";
 
 export type WorkflowDataSource = "supabase" | "mock";
@@ -46,13 +47,6 @@ export type WorkflowTransitionResult = {
 export type WorkflowEventInput = WorkflowTransitionInput & {
   domain: WorkflowDomain;
 };
-
-function isSupabaseConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-  );
-}
 
 async function persistStatus(
   domain: WorkflowDomain,

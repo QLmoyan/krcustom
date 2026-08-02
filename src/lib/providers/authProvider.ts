@@ -6,6 +6,10 @@ import {
 import * as authRepository from "@/repositories/auth";
 import * as profileRepository from "@/repositories/profile";
 import { resolveAvatarUrl } from "@/lib/providers/storageProvider";
+import {
+  isSupabaseConfigured,
+  SUPABASE_NOT_CONFIGURED,
+} from "@/lib/supabase/env";
 import type {
   AuthActionResult,
   AuthSessionResult,
@@ -18,13 +22,6 @@ import type {
 import type { UserRole } from "@/types/Role";
 
 export type AuthDataSource = "supabase" | "mock";
-
-function isSupabaseConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-  );
-}
 
 /** Resolve avatar via Storage when an object exists; otherwise keep DB/mock. */
 async function withResolvedAvatar(profile: AppProfile): Promise<AppProfile> {
@@ -85,7 +82,7 @@ export async function getSession(): Promise<AuthSessionResult> {
 
 export async function signIn(input: SignInInput): Promise<AuthActionResult> {
   if (!isSupabaseConfigured()) {
-    return { ok: false, error: "Supabase is not configured" };
+    return { ok: false, error: SUPABASE_NOT_CONFIGURED };
   }
   try {
     return await authRepository.signInWithPassword(input);
@@ -99,7 +96,7 @@ export async function signIn(input: SignInInput): Promise<AuthActionResult> {
 
 export async function signUp(input: SignUpInput): Promise<AuthActionResult> {
   if (!isSupabaseConfigured()) {
-    return { ok: false, error: "Supabase is not configured" };
+    return { ok: false, error: SUPABASE_NOT_CONFIGURED };
   }
   try {
     return await authRepository.signUp(input);
@@ -129,7 +126,7 @@ export async function resetPassword(
   input: ResetPasswordInput,
 ): Promise<AuthActionResult> {
   if (!isSupabaseConfigured()) {
-    return { ok: false, error: "Supabase is not configured" };
+    return { ok: false, error: SUPABASE_NOT_CONFIGURED };
   }
   try {
     return await authRepository.resetPasswordForEmail(input);

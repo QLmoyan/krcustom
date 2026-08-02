@@ -49,4 +49,6 @@ export type AuthActionResult = {
   ok: boolean;
   error?: string;
   user?: AuthUser | null;
+  /** Present after signUp when email confirmation may be required. */
+  sessionCreated?: boolean;
 };

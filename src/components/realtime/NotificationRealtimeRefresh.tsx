@@ -1,6 +1,7 @@
 "use client";
 
 import { useRealtimeRefresh } from "@/lib/realtime/useRealtimeRefresh";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 type NotificationRealtimeRefreshProps = {
   channelKey?: string;
@@ -12,10 +13,7 @@ type NotificationRealtimeRefreshProps = {
 export function NotificationRealtimeRefresh({
   channelKey = "notifications",
 }: NotificationRealtimeRefreshProps) {
-  const supabaseConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-  );
+  const supabaseConfigured = isSupabaseConfigured();
 
   useRealtimeRefresh({
     tables: ["notifications"],

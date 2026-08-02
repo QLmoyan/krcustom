@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
-import { browserSignUp } from "@/lib/auth/browserAuth";
+import { signUpAction } from "@/lib/auth/actions";
+import { SUPABASE_NOT_CONFIGURED } from "@/lib/supabase/env";
 import { ko } from "@/messages";
 
 export function SignupForm() {
@@ -40,7 +41,7 @@ export function SignupForm() {
 
     setPending(true);
     try {
-      const result = await browserSignUp({
+      const result = await signUpAction({
         email: email.trim(),
         password,
         nickname: nickname.trim() || undefined,
@@ -49,7 +50,7 @@ export function SignupForm() {
 
       if (!result.ok) {
         setError(
-          result.error === "Supabase is not configured"
+          result.error === SUPABASE_NOT_CONFIGURED
             ? ko.auth.supabaseMissing
             : result.error || ko.auth.signupFailed,
         );

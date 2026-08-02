@@ -5,6 +5,7 @@ import {
 import { formatKoreanDateTime } from "@/lib/format";
 import { listAnnouncements } from "@/lib/providers/announcementProvider";
 import { listProjects } from "@/lib/providers/projectProvider";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import * as profileRepository from "@/repositories/profile";
 import type { AppProfile } from "@/types/Auth";
 import type { ProjectRow } from "@/types/database";
@@ -61,13 +62,6 @@ const MOCK_SELLERS: AdminSellerStore[] = [
     updatedAt: formatKoreanDateTime(mockSellerProfile.updatedAt),
   },
 ];
-
-function isSupabaseConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-  );
-}
 
 async function listProfilesSafe(role?: UserRole): Promise<{
   profiles: AppProfile[];
