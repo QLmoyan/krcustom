@@ -49,11 +49,6 @@ export function PaymentResultView({
           <Button href={`/orders/${order.id}`} variant="primary">
             {ko.order.openOrder}
           </Button>
-          {order.projectId.startsWith("prj-00") ? (
-            <Button href={`/project/${order.projectId}`} variant="outline">
-              {ko.order.openWorkspace}
-            </Button>
-          ) : null}
           {order.orderType === "CUSTOMER_OWNED_ITEM" ? (
             <Button href={`/orders/${order.id}#owned`} variant="secondary">
               물품 발송 안내
@@ -85,7 +80,7 @@ export function PaymentResultView({
         <Button href={`/checkout/${order.id}`} variant="outline">
           {copy.otherMethod}
         </Button>
-        <Button href="/project/prj-001" variant="ghost">
+        <Button href="/messages" variant="ghost">
           {copy.askSeller}
         </Button>
       </div>

@@ -4,7 +4,6 @@ import { ProjectStatus, PROJECT_STATUS_META } from "@/constants/status";
 import { DEMO, DEMO_UUIDS } from "@/data/demoFlow";
 import { getCurrentUser } from "@/lib/providers/authProvider";
 import { createProject as createProjectViaProvider } from "@/lib/providers/projectProvider";
-import { uploadProjectImage } from "@/lib/providers/storageProvider";
 import * as chatRepository from "@/repositories/chat";
 import type { ProjectRow } from "@/types/database";
 
@@ -13,7 +12,6 @@ export type CreateInquiryProjectResult =
       ok: true;
       projectId: string;
       project: ProjectRow;
-      uploadedImageUrl?: string | null;
       source: "supabase";
     }
   | {
@@ -39,8 +37,8 @@ function resolveServiceUuid(serviceId: string): string {
 }
 
 /**
- * Create a real Project (+ conversation) for a logged-in customer.
- * Optional reference image field: `referenceImage` (File).
+ * Silently create a Project (+ conversation) when a customer starts chat.
+ * Reference images are sent inside chat, not at service-page inquiry time.
  */
 export async function createInquiryProject(
   formData: FormData,
@@ -58,9 +56,6 @@ export async function createInquiryProject(
   const serviceTitle = String(formData.get("serviceTitle") ?? "");
   const storeName = String(formData.get("storeName") ?? "");
   const note = String(formData.get("note") ?? "");
-  const reference = formData.get("referenceImage");
-  const referenceImage =
-    reference instanceof File && reference.size > 0 ? reference : null;
 
   if (!serviceId || !serviceTitle) {
     return { ok: false, error: "Missing service fields" };
@@ -97,21 +92,10 @@ export async function createInquiryProject(
       // Conversation is best-effort; project remains usable.
     }
 
-    let uploadedImageUrl: string | null = null;
-    if (referenceImage) {
-      const upload = await uploadProjectImage(project.id, referenceImage, {
-        filename: referenceImage.name || `reference-${Date.now()}.jpg`,
-      });
-      if (upload.source === "storage") {
-        uploadedImageUrl = upload.url;
-      }
-    }
-
     return {
       ok: true,
       projectId: project.demo_key ?? project.id,
       project,
-      uploadedImageUrl,
       source: "supabase",
     };
   } catch (error) {

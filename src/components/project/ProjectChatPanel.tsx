@@ -12,7 +12,10 @@ import {
 } from "react";
 import { ProjectChatMessageBubble } from "@/components/project/ProjectChatMessageBubble";
 import { Button } from "@/components/ui/Button";
-import { sendProjectChatMessage } from "@/lib/actions/chat";
+import {
+  sendProjectChatMessage,
+  uploadProjectReferenceImage,
+} from "@/lib/actions/chat";
 import { ko } from "@/messages";
 import type { ProjectChatMessage } from "@/types/Project";
 
@@ -30,9 +33,11 @@ export function ProjectChatPanel({
   const router = useRouter();
   const [optimistic, setOptimistic] = useState<ProjectChatMessage[]>([]);
   const [text, setText] = useState("");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const messages = useMemo(() => {
     const seen = new Set(serverMessages.map((message) => message.id));
@@ -48,14 +53,38 @@ export function ProjectChatPanel({
 
   function submit() {
     const body = text.trim();
-    if (!body || pending) return;
+    if ((!body && !pendingFile) || pending) return;
 
     setError(null);
     startTransition(async () => {
+      let imageUrl: string | null = null;
+
+      if (pendingFile) {
+        const formData = new FormData();
+        formData.set("file", pendingFile);
+        const upload = await uploadProjectReferenceImage({
+          projectId,
+          formData,
+        });
+        if (!upload.ok) {
+          if (upload.needAuth) {
+            setError(ko.project.chatLoginRequired);
+            router.push(
+              `/login?next=${encodeURIComponent(`/project/${projectId}`)}`,
+            );
+            return;
+          }
+          setError(upload.error || ko.project.chatSendFailed);
+          return;
+        }
+        imageUrl = upload.url;
+      }
+
       const result = await sendProjectChatMessage({
         projectId,
         conversationId,
         body,
+        imageUrl,
       });
 
       if (!result.ok) {
@@ -71,6 +100,8 @@ export function ProjectChatPanel({
       }
 
       setText("");
+      setPendingFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       setOptimistic((prev) => [...prev, result.message]);
       router.refresh();
     });
@@ -87,6 +118,8 @@ export function ProjectChatPanel({
       submit();
     }
   }
+
+  const canSend = Boolean(text.trim() || pendingFile);
 
   return (
     <section className="flex h-full min-h-[420px] flex-col overflow-hidden rounded-xl border border-[#E2E8F0] bg-white lg:min-h-0">
@@ -121,7 +154,47 @@ export function ProjectChatPanel({
             {error}
           </p>
         ) : null}
+        {pendingFile ? (
+          <div className="mb-2 flex items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1.5">
+            <p className="min-w-0 flex-1 truncate text-[12px] text-[#64748B]">
+              {pendingFile.name}
+            </p>
+            <button
+              type="button"
+              className="shrink-0 text-[12px] font-semibold text-[#DC2626] hover:underline"
+              disabled={pending}
+              onClick={() => {
+                setPendingFile(null);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+            >
+              {ko.service.referenceRemove}
+            </button>
+          </div>
+        ) : null}
         <div className="flex items-end gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            disabled={pending}
+            onChange={(event) => {
+              const file = event.target.files?.[0] ?? null;
+              if (file && file.type.startsWith("image/")) {
+                setPendingFile(file);
+              }
+            }}
+          />
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-[#E2E8F0] bg-white px-3 text-[13px] font-semibold text-[#0F766E] hover:bg-[#F0FDFA] disabled:opacity-60"
+            aria-label={ko.project.attach}
+          >
+            {ko.project.attach}
+          </button>
           <label htmlFor="project-chat-input" className="sr-only">
             {ko.project.composerPlaceholder}
           </label>
@@ -138,7 +211,7 @@ export function ProjectChatPanel({
           <Button
             type="submit"
             size="md"
-            disabled={pending || !text.trim()}
+            disabled={pending || !canSend}
             className="shrink-0"
           >
             {pending ? ko.project.sending : ko.project.send}

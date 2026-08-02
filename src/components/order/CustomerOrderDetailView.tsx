@@ -178,27 +178,12 @@ export function CustomerOrderDetailView({
         <Button type="button" variant="outline" size="sm" disabled>
           {copy.refund}
         </Button>
-        {order.projectId ? (
-          <Button
-            href={`/project/${order.projectId}`}
-            variant="ghost"
-            size="sm"
-          >
-            {copy.contactSeller}
-          </Button>
-        ) : (
-          <Button type="button" variant="ghost" size="sm" disabled>
-            {copy.contactSeller}
-          </Button>
-        )}
+        <Button href="/messages" variant="ghost" size="sm">
+          {copy.contactSeller}
+        </Button>
         {order.paymentStatus !== "PAID" || order.id === "ord-001" ? (
           <Button href={`/checkout/${order.id}`} variant="primary" size="sm">
             {copy.openCheckout}
-          </Button>
-        ) : null}
-        {order.projectId ? (
-          <Button href={`/project/${order.projectId}`} variant="secondary" size="sm">
-            {copy.openWorkspace}
           </Button>
         ) : null}
       </div>

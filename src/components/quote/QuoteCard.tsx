@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { QuoteStatus, getStatusLabel } from "@/constants/status";
+import { DEMO } from "@/data/demoFlow";
 import {
   confirmQuoteAction,
   requestQuoteRevisionAction,
@@ -18,13 +19,13 @@ const copy = ko.quote;
 type QuoteCardProps = {
   quote: Quote;
   showActions?: boolean;
+  /** Reserved for post-design-confirm checkout; not shown on quote accept alone. */
   checkoutOrderId?: string | null;
 };
 
 export function QuoteCard({
   quote,
   showActions = true,
-  checkoutOrderId = null,
 }: QuoteCardProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -111,34 +112,13 @@ export function QuoteCard({
       {showActions ? (
         <div className="mt-3 flex flex-wrap gap-2">
           {accepted ? (
-            <>
-              {checkoutOrderId ? (
-                <>
-                  <Button
-                    href={`/orders/${checkoutOrderId}`}
-                    variant="secondary"
-                    size="sm"
-                  >
-                    {ko.order.openOrder}
-                  </Button>
-                  <Button
-                    href={`/checkout/${checkoutOrderId}`}
-                    variant="primary"
-                    size="sm"
-                  >
-                    {ko.order.proceedPayment}
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  href={`/project/${quote.projectId}`}
-                  variant="secondary"
-                  size="sm"
-                >
-                  {ko.project.workspace}
-                </Button>
-              )}
-            </>
+            <Button
+              href={`/design-proofs/${DEMO.designProofId}`}
+              variant="primary"
+              size="sm"
+            >
+              {ko.designProof.viewCustomerProof}
+            </Button>
           ) : (
             <>
               <Button

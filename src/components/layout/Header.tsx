@@ -98,7 +98,7 @@ export function Header({ showPopularSearches = false }: HeaderProps) {
             {ko.nav.customRequest}
           </Link>
           <Link
-            href="/project/prj-001"
+            href="/messages"
             className="rounded-lg px-3 py-2 text-[15px] font-medium text-[#0F172A] hover:bg-[#F8FAFC]"
           >
             {ko.nav.messages}
@@ -209,7 +209,7 @@ export function Header({ showPopularSearches = false }: HeaderProps) {
               </Link>
             ))}
             <Link
-              href="/project/prj-001"
+              href="/messages"
               className="rounded-lg px-3 py-2.5 text-[15px] text-[#0F172A] hover:bg-[#F8FAFC]"
               onClick={() => setMenuOpen(false)}
             >

@@ -18,18 +18,18 @@ const STEPS: StepDef[] = [
     id: 1,
     label: "서비스 탐색",
     prev: null,
-    next: { href: `/project/${DEMO.projectId}`, label: "판매자 상담" },
+    next: { href: "/messages", label: "채팅하기" },
   },
   {
     id: 2,
-    label: "판매자 상담",
+    label: "채팅하기",
     prev: { href: `/service/${DEMO.serviceId}`, label: "서비스 탐색" },
     next: { href: `/project/${DEMO.projectId}/quote`, label: "견적 확인" },
   },
   {
     id: 3,
     label: "견적 확인",
-    prev: { href: `/project/${DEMO.projectId}`, label: "판매자 상담" },
+    prev: { href: "/messages", label: "채팅하기" },
     next: {
       href: `/design-proofs/${DEMO.designProofId}`,
       label: "시안 확인",
@@ -39,11 +39,11 @@ const STEPS: StepDef[] = [
     id: 4,
     label: "시안 확인",
     prev: { href: `/project/${DEMO.projectId}/quote`, label: "견적 확인" },
-    next: { href: `/checkout/${DEMO.orderId}`, label: "결제" },
+    next: { href: `/checkout/${DEMO.orderId}`, label: "주문·결제" },
   },
   {
     id: 5,
-    label: "결제",
+    label: "주문·결제",
     prev: {
       href: `/design-proofs/${DEMO.designProofId}`,
       label: "시안 확인",
@@ -53,7 +53,7 @@ const STEPS: StepDef[] = [
   {
     id: 6,
     label: "주문 확인",
-    prev: { href: `/checkout/${DEMO.orderId}`, label: "결제" },
+    prev: { href: `/checkout/${DEMO.orderId}`, label: "주문·결제" },
     next: {
       href: `/orders/${DEMO.orderId}#owned`,
       label: "고객 물품 발송",

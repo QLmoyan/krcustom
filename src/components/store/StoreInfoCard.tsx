@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { DEMO } from "@/data/demoFlow";
 import { formatCount } from "@/lib/format";
 import { ko } from "@/messages";
 import type { Store } from "@/types";
@@ -62,12 +61,12 @@ export function StoreInfoCard({ store }: StoreInfoCardProps) {
           {ko.service.visitStore}
         </Link>
         <Button
-          href={`/project/${DEMO.projectId}`}
+          href="/messages"
           variant="secondary"
           size="sm"
           className="h-9 border border-[#BAE6FD]"
         >
-          {ko.store.askSeller}
+          {ko.store.startChat}
         </Button>
       </div>
     </section>

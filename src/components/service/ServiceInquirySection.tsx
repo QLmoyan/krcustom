@@ -15,11 +15,10 @@ type ServiceInquirySectionProps = {
 export function ServiceInquirySection({ service }: ServiceInquirySectionProps) {
   const router = useRouter();
   const [note, setNote] = useState("");
-  const [referenceFile, setReferenceFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  function startInquiry(mode: "chat" | "quote") {
+  function startChat() {
     setError(null);
     startTransition(async () => {
       const formData = new FormData();
@@ -27,9 +26,6 @@ export function ServiceInquirySection({ service }: ServiceInquirySectionProps) {
       formData.set("serviceTitle", service.title);
       formData.set("storeName", service.storeName);
       formData.set("note", note);
-      if (referenceFile) {
-        formData.set("referenceImage", referenceFile);
-      }
 
       const result = await createInquiryProject(formData);
 
@@ -43,11 +39,8 @@ export function ServiceInquirySection({ service }: ServiceInquirySectionProps) {
         return;
       }
 
-      const path =
-        mode === "quote"
-          ? `/project/${result.projectId}/quote`
-          : `/project/${result.projectId}`;
-      router.push(path);
+      // Project is created silently; land on chat workspace for that project.
+      router.push(`/project/${result.projectId}`);
       router.refresh();
     });
   }
@@ -58,8 +51,6 @@ export function ServiceInquirySection({ service }: ServiceInquirySectionProps) {
         service={service}
         note={note}
         onNoteChange={setNote}
-        referenceFile={referenceFile}
-        onReferenceFileChange={setReferenceFile}
         uploadDisabled={pending}
       />
 
@@ -71,21 +62,17 @@ export function ServiceInquirySection({ service }: ServiceInquirySectionProps) {
 
       <div className="hidden lg:block">
         <ServiceActionPanel
-          service={service}
           layout="stack"
           pending={pending}
-          onChatInquiry={() => startInquiry("chat")}
-          onRequestQuote={() => startInquiry("quote")}
+          onStartChat={startChat}
         />
       </div>
 
       <div className="fixed inset-x-0 bottom-14 z-30 md:bottom-0 lg:hidden">
         <ServiceActionPanel
-          service={service}
           layout="mobile-bar"
           pending={pending}
-          onChatInquiry={() => startInquiry("chat")}
-          onRequestQuote={() => startInquiry("quote")}
+          onStartChat={startChat}
         />
       </div>
     </div>

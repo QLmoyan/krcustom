@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { DEMO } from "@/data/demoFlow";
 import { ko } from "@/messages";
 
 type CustomerOwnedItemCalloutProps = {
@@ -28,7 +27,7 @@ export function CustomerOwnedItemCallout({
         {ko.service.ownedItemFlowSteps.join(" → ")}
       </p>
       <Button
-        href={`/project/${DEMO.projectId}`}
+        href="/messages"
         variant="outline"
         size="md"
         className="mt-3 w-full border-[#E7D3A8] bg-white text-[#92400E] hover:bg-[#FFF8EB]"

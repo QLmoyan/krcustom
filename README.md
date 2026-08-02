@@ -78,10 +78,11 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=你的 Publishable Key
 ### 用户端
 
 ```
-/ → /signup|/login → /service/svc-001 → /project/[id]
-  → /project/[id]/quote → /design-proofs/[id]
-  → /checkout/ord-001 → /orders/ord-001
+/ → /signup|/login → /service/svc-001 → 채팅하기(/messages)
+  → 견적 확인 → /design-proofs/[id] → /checkout/[orderId] → /orders/[id]
 ```
+
+Project（`/project/[id]`）为聊天/报价/效果图协作的内部与商家工作区，不再作为客户首页与服务页的主入口。
 
 ### 商家端
 

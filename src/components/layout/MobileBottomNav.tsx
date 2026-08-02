@@ -12,7 +12,7 @@ const items = [
     label: ko.nav.customRequest,
     icon: RequestIcon,
   },
-  { href: "/project/prj-001", label: ko.nav.messages, icon: MessageIcon },
+  { href: "/messages", label: ko.nav.messages, icon: MessageIcon },
   { href: "/profile", label: ko.nav.myPage, icon: ProfileIcon },
 ] as const;
 

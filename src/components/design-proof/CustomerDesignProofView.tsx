@@ -82,50 +82,32 @@ export function CustomerDesignProofView({
                 {getStatusLabel("quote", quote.status)}
               </p>
             </div>
-            <Button
-              href={`/project/${proof.projectId}/quote`}
-              variant="outline"
-              size="sm"
-            >
-              {copy.viewQuote}
-            </Button>
           </div>
         </section>
       ) : null}
 
-      <DesignProofActionPanel proof={proof} mode="customer" />
+      {confirmed && checkoutOrderId ? (
+        <div className="flex flex-wrap gap-2">
+          <Button href={`/checkout/${checkoutOrderId}`} variant="primary" size="md">
+            {copy.checkoutPay}
+          </Button>
+          <Button href={`/orders/${checkoutOrderId}`} variant="outline" size="md">
+            {ko.order.openOrder}
+          </Button>
+        </div>
+      ) : (
+        <DesignProofActionPanel proof={proof} mode="customer" />
+      )}
 
       <DesignProofVersionList versions={versions} activeId={proof.id} />
 
       <div className="flex flex-wrap gap-3">
         <Link
-          href={`/project/${proof.projectId}`}
+          href="/messages"
           className="text-[13px] font-semibold text-[#0F766E] hover:underline"
         >
-          {copy.openInWorkspace}
+          {ko.service.chatInquiry}
         </Link>
-        <Link
-          href={`/project/${proof.projectId}/quote`}
-          className="text-[13px] font-semibold text-[#0369A1] hover:underline"
-        >
-          {copy.viewQuote}
-        </Link>
-        {confirmed && checkoutOrderId ? (
-          <>
-            <Link
-              href={`/checkout/${checkoutOrderId}`}
-              className="text-[13px] font-semibold text-[#0369A1] hover:underline"
-            >
-              {copy.checkoutPay}
-            </Link>
-            <Link
-              href={`/orders/${checkoutOrderId}`}
-              className="text-[13px] font-semibold text-[#0F766E] hover:underline"
-            >
-              {ko.order.openOrder}
-            </Link>
-          </>
-        ) : null}
       </div>
     </div>
   );

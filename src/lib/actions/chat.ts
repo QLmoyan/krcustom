@@ -18,10 +18,33 @@ export type SendProjectChatResult =
       error: string;
     };
 
+async function ensureConversationId(
+  projectId: string,
+  conversationId: string | null,
+): Promise<string | null> {
+  if (conversationId) return conversationId;
+
+  const existing = await chatRepository.getConversationByProject(projectId);
+  if (existing?.id) return existing.id;
+
+  const project = await (
+    await import("@/repositories/project")
+  ).getProjectById(projectId);
+  if (!project) return null;
+
+  const created = await chatRepository.createConversation({
+    project_id: project.id,
+    customer_id: project.customer_id,
+    seller_id: project.seller_id,
+  });
+  return created.id;
+}
+
 export async function sendProjectChatMessage(input: {
   projectId: string;
   conversationId: string | null;
   body: string;
+  imageUrl?: string | null;
 }): Promise<SendProjectChatResult> {
   const user = await getCurrentUser();
   if (!user) {
@@ -29,32 +52,18 @@ export async function sendProjectChatMessage(input: {
   }
 
   const body = input.body.trim();
-  if (!body) {
+  const imageUrl = input.imageUrl?.trim() || null;
+  if (!body && !imageUrl) {
     return { ok: false, error: "Empty message" };
   }
 
   try {
-    let conversationId = input.conversationId;
+    const conversationId = await ensureConversationId(
+      input.projectId,
+      input.conversationId,
+    );
     if (!conversationId) {
-      const conversation = await chatRepository.getConversationByProject(
-        input.projectId,
-      );
-      conversationId = conversation?.id ?? null;
-    }
-
-    if (!conversationId) {
-      const project = await (
-        await import("@/repositories/project")
-      ).getProjectById(input.projectId);
-      if (!project) {
-        return { ok: false, error: "Project not found" };
-      }
-      const created = await chatRepository.createConversation({
-        project_id: project.id,
-        customer_id: project.customer_id,
-        seller_id: project.seller_id,
-      });
-      conversationId = created.id;
+      return { ok: false, error: "Project not found" };
     }
 
     const senderRole =
@@ -66,10 +75,11 @@ export async function sendProjectChatMessage(input: {
 
     const result = await sendMessage({
       conversationId,
-      body,
+      body: body || (imageUrl ? "참고 이미지" : ""),
       senderId: user.profile.id,
       senderRole,
-      contentType: "text",
+      contentType: imageUrl ? "image" : "text",
+      imageUrl,
     });
 
     if (!result.message) {

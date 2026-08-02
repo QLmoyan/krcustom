@@ -74,10 +74,10 @@ export default async function StorePage({ params }: StorePageProps) {
             </p>
             {id === DEMO.storeId ? (
               <Link
-                href={`/project/${DEMO.projectId}`}
+                href="/messages"
                 className="mt-3 inline-flex text-[13px] font-semibold text-[#0F766E] hover:underline"
               >
-                데모 상담으로 이동
+                {ko.store.startChat}
               </Link>
             ) : null}
           </div>

@@ -349,13 +349,6 @@ export function DesignProofActionPanel({
         >
           {copy.requestRevision}
         </Button>
-        <Button
-          href={`/project/${proof.projectId}`}
-          variant="ghost"
-          size="md"
-        >
-          {copy.askSeller}
-        </Button>
       </div>
 
       {showRevisionForm && !locked ? (
