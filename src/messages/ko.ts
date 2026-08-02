@@ -334,10 +334,41 @@ export const ko = {
     quoteHistory: "견적 이력",
     quoteTimeline: "견적 타임라인",
     openQuoteBuilder: "견적 작성기",
+    backToService: "서비스로 돌아가기",
     customerConfirmedYes: "고객 확인 완료",
     customerConfirmedNo: "고객 미확인",
     sentAt: "발송",
     versionLabel: "버전",
+  },
+  system: {
+    errorTitle: "문제가 발생했습니다",
+    errorDescription:
+      "일시적인 오류일 수 있습니다. 잠시 후 다시 시도해 주세요.",
+    errorRetry: "다시 시도",
+    errorHome: "홈으로",
+    notFoundTitle: "페이지를 찾을 수 없습니다",
+    notFoundDescription:
+      "요청하신 페이지가 없거나 이동되었을 수 있습니다.",
+    notFoundAction: "홈으로 돌아가기",
+    loading: "불러오는 중…",
+    emptyTitle: "표시할 내용이 없습니다",
+    emptyDescription: "조건에 맞는 항목이 없거나 아직 준비되지 않았습니다.",
+  },
+  demo: {
+    badge: "DEMO · 준비 중",
+    goService: "서비스 데모로 이동",
+    goHome: "홈으로",
+    loginTitle: "로그인",
+    loginDescription:
+      "인증 UI는 데모에서 연결되지 않았습니다. 판매자 데모 또는 서비스 데모로 바로 이동할 수 있습니다.",
+    loginSeller: "판매자 데모",
+    profileTitle: "마이페이지",
+    profileDescription:
+      "마이페이지는 준비 중입니다. 주문·상담 데모를 먼저 확인해 보세요.",
+    profileOrder: "데모 주문 보기",
+    customRequestTitle: "맞춤 요청 등록",
+    customRequestDescription:
+      "맞춤 요청 등록은 이후 스프린트에서 연결됩니다. 지금은 서비스 데모로 상담·견적·결제 흐름을 확인해 보세요.",
   },
   quote: {
     builderTitle: "견적 작성기",
@@ -598,6 +629,11 @@ export const ko = {
     title: "관리자 콘솔",
     subtitle: "사용자·판매자·프로젝트·공지를 확인합니다. (데모)",
     demoNote: "데모 화면입니다. 로그인 없이도 시드 데이터를 볼 수 있습니다.",
+    accessHintGuest:
+      "관리자 세션이 없습니다. 데모 시드 데이터를 표시합니다. 실서비스에서는 ADMIN 로그인이 필요합니다.",
+    accessHintNonAdmin:
+      "현재 계정은 관리자 역할이 아닙니다. 데모 시드 데이터를 표시합니다.",
+    accessHintAdmin: "관리자 세션으로 접속 중입니다.",
     nav: {
       dashboard: "개요",
       users: "사용자",

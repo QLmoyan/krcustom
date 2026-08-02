@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { getSiteUrl } from "@/lib/site";
+import { ko } from "@/messages";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,10 +14,50 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = getSiteUrl();
+const titleDefault = `${ko.brand.name} | ${ko.brand.nameEn}`;
+const description =
+  "원하는 디자인과 조건에 맞는 맞춤 제작 서비스를 찾아보세요. 채팅, 견적, 시안 확인, 고객 소지품 커스텀까지.";
+
 export const metadata: Metadata = {
-  title: "커스텀코리아 | KrCustom",
-  description:
-    "원하는 디자인과 조건에 맞는 맞춤 제작 서비스를 찾아보세요. 채팅, 견적, 시안 확인, 고객 소지품 커스텀까지.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: titleDefault,
+    template: `%s | ${ko.brand.name}`,
+  },
+  description,
+  applicationName: ko.brand.name,
+  keywords: [
+    "커스텀",
+    "맞춤 제작",
+    "견적",
+    "시안",
+    "자수",
+    "인쇄",
+    "커스텀코리아",
+    "KrCustom",
+  ],
+  authors: [{ name: ko.brand.nameEn }],
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: siteUrl,
+    siteName: ko.brand.name,
+    title: titleDefault,
+    description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: titleDefault,
+    description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({

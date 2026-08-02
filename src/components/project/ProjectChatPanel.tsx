@@ -20,9 +20,17 @@ export function ProjectChatPanel({ messages }: ProjectChatPanelProps) {
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto px-3 py-3">
-        {messages.map((message) => (
-          <ProjectChatMessageBubble key={message.id} message={message} />
-        ))}
+        {messages.length === 0 ? (
+          <div className="flex h-full min-h-[200px] items-center justify-center px-4">
+            <p className="text-center text-[13px] text-[#94A3B8]">
+              {ko.system.emptyDescription}
+            </p>
+          </div>
+        ) : (
+          messages.map((message) => (
+            <ProjectChatMessageBubble key={message.id} message={message} />
+          ))
+        )}
       </div>
 
       <div className="border-t border-[#E2E8F0] bg-[#F8FAFC] p-3">

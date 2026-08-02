@@ -1,4 +1,5 @@
 import { AdminShell } from "@/components/admin/AdminShell";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { listAdminUsers } from "@/lib/providers/adminProvider";
 import { formatKoreanDateTime } from "@/lib/format";
 import { ko } from "@/messages";
@@ -14,26 +15,22 @@ export default async function AdminUsersPage() {
 
   return (
     <AdminShell title={ko.admin.usersTitle} subtitle={ko.admin.usersSubtitle}>
-      <div className="overflow-x-auto rounded-xl border border-[#E2E8F0] bg-white">
-        <table className="min-w-full text-left text-[13px]">
-          <thead className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-[12px] text-[#64748B]">
-            <tr>
-              <th className="px-3 py-2.5 font-medium">{ko.admin.colNickname}</th>
-              <th className="px-3 py-2.5 font-medium">{ko.admin.colRole}</th>
-              <th className="px-3 py-2.5 font-medium">{ko.admin.colPhone}</th>
-              <th className="px-3 py-2.5 font-medium">{ko.admin.colDemoKey}</th>
-              <th className="px-3 py-2.5 font-medium">{ko.admin.colUpdated}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#E2E8F0]">
-            {users.length === 0 ? (
+      {users.length === 0 ? (
+        <EmptyState title={ko.admin.empty} />
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-[#E2E8F0] bg-white">
+          <table className="min-w-full text-left text-[13px]">
+            <thead className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-[12px] text-[#64748B]">
               <tr>
-                <td colSpan={5} className="px-3 py-6 text-[#64748B]">
-                  {ko.admin.empty}
-                </td>
+                <th className="px-3 py-2.5 font-medium">{ko.admin.colNickname}</th>
+                <th className="px-3 py-2.5 font-medium">{ko.admin.colRole}</th>
+                <th className="px-3 py-2.5 font-medium">{ko.admin.colPhone}</th>
+                <th className="px-3 py-2.5 font-medium">{ko.admin.colDemoKey}</th>
+                <th className="px-3 py-2.5 font-medium">{ko.admin.colUpdated}</th>
               </tr>
-            ) : (
-              users.map((user) => (
+            </thead>
+            <tbody className="divide-y divide-[#E2E8F0]">
+              {users.map((user) => (
                 <tr key={user.id}>
                   <td className="px-3 py-2.5 font-medium text-[#0F172A]">
                     {user.nickname || "—"}
@@ -47,11 +44,11 @@ export default async function AdminUsersPage() {
                     {formatKoreanDateTime(user.updatedAt)}
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </AdminShell>
   );
 }

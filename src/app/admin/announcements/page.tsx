@@ -1,4 +1,5 @@
 import { AdminShell } from "@/components/admin/AdminShell";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { listAnnouncements } from "@/lib/providers/announcementProvider";
 import { ko } from "@/messages";
 
@@ -10,13 +11,11 @@ export default async function AdminAnnouncementsPage() {
       title={ko.admin.announcementsTitle}
       subtitle={ko.admin.announcementsSubtitle}
     >
-      <div className="space-y-3">
-        {announcements.length === 0 ? (
-          <p className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-6 text-[13px] text-[#64748B]">
-            {ko.admin.empty}
-          </p>
-        ) : (
-          announcements.map((item) => (
+      {announcements.length === 0 ? (
+        <EmptyState title={ko.admin.empty} />
+      ) : (
+        <div className="space-y-3">
+          {announcements.map((item) => (
             <article
               key={item.id}
               className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3"
@@ -33,9 +32,9 @@ export default async function AdminAnnouncementsPage() {
                 {item.body}
               </p>
             </article>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </AdminShell>
   );
 }

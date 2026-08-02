@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { formatKoreanDateTime } from "@/lib/format";
 import { listProjects } from "@/lib/providers/projectProvider";
 import { ko } from "@/messages";
@@ -12,28 +13,24 @@ export default async function AdminProjectsPage() {
       title={ko.admin.projectsTitle}
       subtitle={ko.admin.projectsSubtitle}
     >
-      <div className="overflow-x-auto rounded-xl border border-[#E2E8F0] bg-white">
-        <table className="min-w-full text-left text-[13px]">
-          <thead className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-[12px] text-[#64748B]">
-            <tr>
-              <th className="px-3 py-2.5 font-medium">
-                {ko.admin.colProjectNumber}
-              </th>
-              <th className="px-3 py-2.5 font-medium">{ko.admin.colTitle}</th>
-              <th className="px-3 py-2.5 font-medium">{ko.admin.colStatus}</th>
-              <th className="px-3 py-2.5 font-medium">{ko.admin.colDemoKey}</th>
-              <th className="px-3 py-2.5 font-medium">{ko.admin.colUpdated}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#E2E8F0]">
-            {projects.length === 0 ? (
+      {projects.length === 0 ? (
+        <EmptyState title={ko.admin.empty} />
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-[#E2E8F0] bg-white">
+          <table className="min-w-full text-left text-[13px]">
+            <thead className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-[12px] text-[#64748B]">
               <tr>
-                <td colSpan={5} className="px-3 py-6 text-[#64748B]">
-                  {ko.admin.empty}
-                </td>
+                <th className="px-3 py-2.5 font-medium">
+                  {ko.admin.colProjectNumber}
+                </th>
+                <th className="px-3 py-2.5 font-medium">{ko.admin.colTitle}</th>
+                <th className="px-3 py-2.5 font-medium">{ko.admin.colStatus}</th>
+                <th className="px-3 py-2.5 font-medium">{ko.admin.colDemoKey}</th>
+                <th className="px-3 py-2.5 font-medium">{ko.admin.colUpdated}</th>
               </tr>
-            ) : (
-              projects.map((project) => {
+            </thead>
+            <tbody className="divide-y divide-[#E2E8F0]">
+              {projects.map((project) => {
                 const key = project.demo_key ?? project.id;
                 return (
                   <tr key={project.id}>
@@ -55,11 +52,11 @@ export default async function AdminProjectsPage() {
                     </td>
                   </tr>
                 );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </AdminShell>
   );
 }

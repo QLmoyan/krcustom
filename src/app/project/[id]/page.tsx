@@ -26,7 +26,6 @@ import { getDesignProofsByProjectId } from "@/lib/providers/designProofProvider"
 import { getOrderByProjectId } from "@/lib/providers/orderProvider";
 import { getProjectById } from "@/lib/providers/projectProvider";
 import {
-  getLatestQuote,
   getQuotesByProjectId,
   getQuoteTimeline,
 } from "@/lib/providers/quoteProvider";
@@ -62,18 +61,32 @@ export default async function ProjectWorkspacePage({
     );
   }
 
-  const { quotes, source: quoteSource } = await getQuotesByProjectId(id);
-  const { quote: latestQuote } = await getLatestQuote(id);
-  const quoteTimeline = await getQuoteTimeline(id);
+  const [
+    quotesResult,
+    quoteTimeline,
+    designProofsResult,
+    orderResult,
+    ownedItemResult,
+    timelineResult,
+    chatResult,
+  ] = await Promise.all([
+    getQuotesByProjectId(id),
+    getQuoteTimeline(id),
+    getDesignProofsByProjectId(id),
+    getOrderByProjectId(id),
+    getCustomerOwnedItemByProjectId(id),
+    listTimelineEventsByProjectId(id),
+    listMessagesByProjectId(id),
+  ]);
+
+  const { quotes, source: quoteSource } = quotesResult;
+  const latestQuote = quotes[0];
   const { proofs: designProofs, source: designProofSource } =
-    await getDesignProofsByProjectId(id);
-  const { order, source: orderSource } = await getOrderByProjectId(id);
-  const { item: ownedItemDetail, source: ownedItemSource } =
-    await getCustomerOwnedItemByProjectId(id);
-  const { events: timelineEvents, source: timelineSource } =
-    await listTimelineEventsByProjectId(id);
-  const { messages: chatMessages, source: chatSource } =
-    await listMessagesByProjectId(id);
+    designProofsResult;
+  const { order, source: orderSource } = orderResult;
+  const { item: ownedItemDetail, source: ownedItemSource } = ownedItemResult;
+  const { events: timelineEvents, source: timelineSource } = timelineResult;
+  const { messages: chatMessages, source: chatSource } = chatResult;
   const ownedItem = ownedItemDetail
     ? toProjectOwnedItemInfo(ownedItemDetail)
     : project.ownedItem;
@@ -114,7 +127,7 @@ export default async function ProjectWorkspacePage({
                 href={`/service/${DEMO.serviceId}`}
                 className="text-[13px] font-semibold text-[#0F766E] hover:underline"
               >
-                서비스로 돌아가기
+                {ko.project.backToService}
               </Link>
               <Link
                 href={`/project/${id}/quote`}

@@ -26,10 +26,15 @@ const PROJECT_TABLES: RealtimeTable[] = [
 export function ProjectRealtimeRefresh({
   projectKey,
 }: ProjectRealtimeRefreshProps) {
+  const supabaseConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  );
+
   useRealtimeRefresh({
     tables: PROJECT_TABLES,
     channelKey: `project:${projectKey}`,
-    enabled: true,
+    enabled: supabaseConfigured,
   });
 
   return null;

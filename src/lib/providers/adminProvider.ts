@@ -114,26 +114,25 @@ function mapSellerStores(profiles: AppProfile[]): AdminSellerStore[] {
 }
 
 export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapshot> {
-  const [usersResult, sellersResult, projectsResult, announcementsResult] =
-    await Promise.all([
-      listProfilesSafe(),
-      listProfilesSafe("SELLER"),
-      listProjects(),
-      listAnnouncements(),
-    ]);
+  // Single profiles query — derive sellers locally (avoid duplicate listProfiles).
+  const [usersResult, projectsResult, announcementsResult] = await Promise.all([
+    listProfilesSafe(),
+    listProjects(),
+    listAnnouncements(),
+  ]);
 
   const sources = [
     usersResult.source,
-    sellersResult.source,
     projectsResult.source,
     announcementsResult.source,
   ];
   const allMock = sources.every((s) => s === "mock");
   const allSupabase = sources.every((s) => s === "supabase");
 
+  const sellerProfiles = usersResult.profiles.filter((p) => p.role === "SELLER");
   const sellers =
-    sellersResult.source === "supabase" && sellersResult.profiles.length > 0
-      ? mapSellerStores(sellersResult.profiles)
+    usersResult.source === "supabase" && sellerProfiles.length > 0
+      ? mapSellerStores(sellerProfiles)
       : MOCK_SELLERS;
 
   return {
