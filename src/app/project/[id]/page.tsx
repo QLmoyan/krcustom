@@ -23,7 +23,7 @@ import {
 } from "@/data/mockQuotes";
 import { getDesignProofsByProjectId } from "@/data/mockDesignProofs";
 import { getOrderByProjectId } from "@/data/mockOrders";
-import { getProjectById } from "@/data/mockProject";
+import { getProjectById } from "@/lib/providers/projectProvider";
 import { ko } from "@/messages";
 
 type ProjectWorkspacePageProps = {
@@ -34,7 +34,7 @@ export default async function ProjectWorkspacePage({
   params,
 }: ProjectWorkspacePageProps) {
   const { id } = await params;
-  const project = getProjectById(id);
+  const { project, source } = await getProjectById(id);
 
   if (!project) {
     return (
@@ -130,6 +130,16 @@ export default async function ProjectWorkspacePage({
       </main>
 
       <DemoFlowHint step={2} />
+      {process.env.NODE_ENV === "development" ? (
+        <div className="pointer-events-none fixed bottom-20 right-3 z-40 rounded border border-[#CBD5E1] bg-white/95 px-2.5 py-1.5 shadow-sm md:bottom-4">
+          <p className="text-[9px] font-medium tracking-wide text-[#94A3B8] uppercase">
+            DATA SOURCE
+          </p>
+          <p className="text-[11px] font-semibold text-[#0F172A]">
+            {source === "supabase" ? "Supabase" : "Mock"}
+          </p>
+        </div>
+      ) : null}
       <MobileBottomNav />
     </div>
   );

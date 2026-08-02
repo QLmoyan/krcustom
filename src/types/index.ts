@@ -1,3 +1,13 @@
+export type {
+  Database,
+  Json,
+  ProjectRow,
+  ProjectInsert,
+  ProjectUpdate,
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from "./database";
 export type { User } from "./User";
 export type { Store } from "./Store";
 export type {

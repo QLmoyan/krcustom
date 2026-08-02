@@ -44,3 +44,8 @@ Thumbs.db
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local Supabase CLI / login artifacts
+.supabase-login*
+supabase/.temp
+

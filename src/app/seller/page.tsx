@@ -5,11 +5,42 @@ import { SellerQuickActions } from "@/components/seller/SellerQuickActions";
 import { SellerRecentMessages } from "@/components/seller/SellerRecentMessages";
 import { SellerStatCard } from "@/components/seller/SellerStatCard";
 import { SellerTaskList } from "@/components/seller/SellerTaskList";
-import { mockSellerDashboard } from "@/data/mockSellerDashboard";
+import {
+  mockSellerDashboard,
+  type SellerRecentOrder,
+} from "@/data/mockSellerDashboard";
+import { DEMO } from "@/data/demoFlow";
+import { listProjects } from "@/lib/providers/projectProvider";
+import type { ProjectRow } from "@/types/database";
 import { ko } from "@/messages";
 
-export default function SellerDashboardPage() {
+function mapProjectToRecentOrder(project: ProjectRow): SellerRecentOrder {
+  return {
+    id: project.demo_key ?? project.id,
+    orderNumber: project.project_number,
+    customerName: project.customer_id,
+    serviceTitle: project.title,
+    amount: 0,
+    orderType: "quote",
+    status: project.status,
+    updatedAt: project.updated_at,
+  };
+}
+
+export default async function SellerDashboardPage() {
   const data = mockSellerDashboard;
+  const { projects, source } = await listProjects();
+
+  const onlyDemoSeed =
+    source === "supabase" &&
+    projects.length === 1 &&
+    projects[0]?.demo_key === DEMO.projectId;
+
+  // Provider-backed list; keep Alpha Demo table when only seeded prj-001 exists.
+  const recentOrders =
+    source === "supabase" && !onlyDemoSeed
+      ? projects.map(mapProjectToRecentOrder)
+      : data.recentOrders;
 
   return (
     <SellerLayout
@@ -44,7 +75,7 @@ export default function SellerDashboardPage() {
 
         <ProductionBoard columns={data.productionBoard} />
 
-        <SellerOrderTable orders={data.recentOrders} />
+        <SellerOrderTable orders={recentOrders} />
       </div>
     </SellerLayout>
   );
