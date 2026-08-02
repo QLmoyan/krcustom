@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -376,6 +376,42 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar: string | null
+          created_at: string
+          demo_key: string | null
+          id: string
+          language: string
+          nickname: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          avatar?: string | null
+          created_at?: string
+          demo_key?: string | null
+          id: string
+          language?: string
+          nickname?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          avatar?: string | null
+          created_at?: string
+          demo_key?: string | null
+          id?: string
+          language?: string
+          nickname?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           created_at: string
@@ -653,7 +689,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "CUSTOMER" | "SELLER" | "ADMIN"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -783,9 +819,12 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["CUSTOMER", "SELLER", "ADMIN"],
+    },
   },
 } as const
+
 /** Project table aliases for app code */
 export type ProjectRow = Tables<"projects">;
 export type ProjectInsert = TablesInsert<"projects">;
@@ -830,3 +869,9 @@ export type CustomerOwnedItemUpdate = TablesUpdate<"customer_owned_items">;
 export type TimelineEventRow = Tables<"timeline_events">;
 export type TimelineEventInsert = TablesInsert<"timeline_events">;
 export type TimelineEventUpdate = TablesUpdate<"timeline_events">;
+
+/** Profile table aliases for app code */
+export type ProfileRow = Tables<"profiles">;
+export type ProfileInsert = TablesInsert<"profiles">;
+export type ProfileUpdate = TablesUpdate<"profiles">;
+export type UserRoleEnum = Enums<"user_role">;

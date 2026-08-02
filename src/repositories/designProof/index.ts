@@ -129,13 +129,43 @@ export async function listByProject(
   return (data ?? []) as DesignProofWithVersions[];
 }
 
-/** Seller design-proof list — all proofs, newest updated first. */
-export async function listForSeller(): Promise<DesignProofWithVersions[]> {
+export type DesignProofSellerFilter = {
+  sellerId?: string;
+};
+
+/** Seller design-proof list — newest first; optional seller via project ids. */
+export async function listForSeller(
+  filter?: DesignProofSellerFilter,
+): Promise<DesignProofWithVersions[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+
+  let projectIds: string[] | null = null;
+  if (filter?.sellerId) {
+    const { data: projects, error: projectError } = await supabase
+      .from("projects")
+      .select("id")
+      .eq("seller_id", filter.sellerId);
+
+    if (projectError) {
+      throw projectError;
+    }
+
+    projectIds = (projects ?? []).map((p) => p.id);
+    if (projectIds.length === 0) {
+      return [];
+    }
+  }
+
+  let query = supabase
     .from("design_proofs")
     .select(PROOF_SELECT)
     .order("updated_at", { ascending: false });
+
+  if (projectIds) {
+    query = query.in("project_id", projectIds);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw error;

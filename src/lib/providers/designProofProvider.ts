@@ -311,10 +311,18 @@ export async function getDesignProofById(
 /**
  * Seller design-proof list. Prefers Supabase; merges mock projects so the
  * seller list stays complete. Empty/fail → mock.
+ * Signed-in SELLER filters by profile.id via projects.seller_id.
  */
 export async function listForSeller(): Promise<DesignProofListResult> {
   try {
-    const rows = await designProofRepository.listForSeller();
+    const { getCurrentActorContext } = await import(
+      "@/lib/providers/authProvider"
+    );
+    const actor = await getCurrentActorContext();
+    const filter =
+      actor?.role === "SELLER" ? { sellerId: actor.profileId } : undefined;
+
+    const rows = await designProofRepository.listForSeller(filter);
     if (rows.length === 0) {
       return { items: getMockDesignProofListItems(), source: "mock" };
     }

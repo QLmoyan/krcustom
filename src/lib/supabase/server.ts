@@ -1,10 +1,10 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
 
 /**
- * Server Component / Server Action / Route Handler 用 Supabase 客户端。
- * 当前为基础接入；后续如需 Cookie Auth，可再升级为 @supabase/ssr。
- * 仅使用 Publishable Key，不要在此使用 service_role。
+ * Server Component / Server Action / Route Handler Supabase client.
+ * Cookie session via @supabase/ssr. Uses Publishable Key only.
  */
 export async function createClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -20,5 +20,22 @@ export async function createClient() {
     );
   }
 
-  return createSupabaseClient<Database>(url, publishableKey);
+  const cookieStore = await cookies();
+
+  return createServerClient<Database>(url, publishableKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options),
+          );
+        } catch {
+          // Called from a Server Component — proxy refreshes the session.
+        }
+      },
+    },
+  });
 }

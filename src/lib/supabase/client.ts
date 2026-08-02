@@ -1,9 +1,9 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 import type { Database } from "@/types/database";
 
 /**
- * Browser / Client Component 用 Supabase 客户端。
- * 仅使用 Publishable Key，不要在此使用 service_role。
+ * Browser / Client Component Supabase client (cookie-aware via @supabase/ssr).
+ * Uses Publishable Key only — never service_role.
  */
 export function createClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -19,5 +19,5 @@ export function createClient() {
     );
   }
 
-  return createSupabaseClient<Database>(url, publishableKey);
+  return createBrowserClient<Database>(url, publishableKey);
 }

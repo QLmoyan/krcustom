@@ -268,10 +268,14 @@ export async function getOrderByProjectId(
 /**
  * Customer / seller order lists. Prefers Supabase; merges remaining mock
  * orders so list pages keep the full demo catalog.
+ * Signed-in actors filter by profile.id; anonymous keeps Demo path.
  */
-export async function listOrders(): Promise<OrdersResult> {
+export async function listOrders(options?: {
+  sellerId?: string;
+  customerId?: string;
+}): Promise<OrdersResult> {
   try {
-    const rows = await orderRepository.listOrders();
+    const rows = await orderRepository.listOrders(options);
     if (rows.length === 0) {
       return { orders: getMockOrdersByCustomer(), source: "mock" };
     }
@@ -285,11 +289,31 @@ export async function listOrders(): Promise<OrdersResult> {
 }
 
 export async function listForSeller(): Promise<OrdersResult> {
-  return listOrders();
+  try {
+    const { getCurrentActorContext } = await import(
+      "@/lib/providers/authProvider"
+    );
+    const actor = await getCurrentActorContext();
+    const sellerId =
+      actor?.role === "SELLER" ? actor.profileId : undefined;
+    return listOrders(sellerId ? { sellerId } : undefined);
+  } catch {
+    return listOrders();
+  }
 }
 
 export async function getOrdersByCustomer(): Promise<OrdersResult> {
-  return listOrders();
+  try {
+    const { getCurrentActorContext } = await import(
+      "@/lib/providers/authProvider"
+    );
+    const actor = await getCurrentActorContext();
+    const customerId =
+      actor?.role === "CUSTOMER" ? actor.profileId : undefined;
+    return listOrders(customerId ? { customerId } : undefined);
+  } catch {
+    return listOrders();
+  }
 }
 
 /**

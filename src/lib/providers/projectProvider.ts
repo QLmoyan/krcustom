@@ -93,11 +93,23 @@ export async function getProjectById(
 
 /**
  * Project list for seller surfaces.
- * Prefers Supabase rows; empty or failed reads fall back to mock-derived rows.
+ * When a SELLER is signed in, filters by profile.id as seller_id.
+ * Anonymous / Demo: unfiltered list (existing public demo path).
  */
 export async function listProjects(): Promise<ProjectListResult> {
   try {
-    const projects = await projectRepository.listProjects();
+    const { getCurrentActorContext } = await import(
+      "@/lib/providers/authProvider"
+    );
+    const actor = await getCurrentActorContext();
+    const filter =
+      actor?.role === "SELLER"
+        ? { sellerId: actor.profileId }
+        : actor?.role === "CUSTOMER"
+          ? { customerId: actor.profileId }
+          : undefined;
+
+    const projects = await projectRepository.listProjects(filter);
     if (projects.length === 0) {
       return {
         projects: mockProjects.map(mockWorkspaceToRow),

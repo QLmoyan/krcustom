@@ -145,12 +145,28 @@ export async function listByProject(
 }
 
 /** Seller / customer list — all orders, newest updated first. */
-export async function listOrders(): Promise<OrderWithRelations[]> {
+export type OrderListFilter = {
+  sellerId?: string;
+  customerId?: string;
+};
+
+export async function listOrders(
+  filter?: OrderListFilter,
+): Promise<OrderWithRelations[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("orders")
     .select(ORDER_SELECT)
     .order("updated_at", { ascending: false });
+
+  if (filter?.sellerId) {
+    query = query.eq("seller_id", filter.sellerId);
+  }
+  if (filter?.customerId) {
+    query = query.eq("customer_id", filter.customerId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw error;

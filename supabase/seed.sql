@@ -687,3 +687,52 @@ on conflict (id) do update set
   metadata = excluded.metadata,
   demo_key = excluded.demo_key,
   created_at = excluded.created_at;
+
+-- ---------------------------------------------------------------------------
+-- Sprint 8 Phase 1: profiles (optional ? requires matching auth.users rows)
+-- Pattern: profiles.id = auth.users.id
+-- Demo UUID targets (match projects.customer_id / seller_id):
+--   customer: 33333333-3333-4333-8333-333333333333
+--   seller:   44444444-4444-4444-8444-444444444444
+-- Auth users cannot be inserted via public SQL seed reliably.
+-- Create users in Dashboard (or Admin API) with those UUIDs, then re-run seed;
+-- or rely on handle_new_auth_user trigger after normal email sign-up.
+-- ---------------------------------------------------------------------------
+
+insert into public.profiles (id, role, nickname, avatar, phone, language, demo_key)
+select
+  u.id,
+  'CUSTOMER'::public.user_role,
+  '데모 고객',
+  null,
+  '010-1234-5678',
+  'ko',
+  'demo-customer'
+from auth.users u
+where u.id = '33333333-3333-4333-8333-333333333333'
+on conflict (id) do update set
+  role = excluded.role,
+  nickname = excluded.nickname,
+  phone = excluded.phone,
+  language = excluded.language,
+  demo_key = excluded.demo_key,
+  updated_at = now();
+
+insert into public.profiles (id, role, nickname, avatar, phone, language, demo_key)
+select
+  u.id,
+  'SELLER'::public.user_role,
+  '스티치하우스',
+  null,
+  '010-9876-5432',
+  'ko',
+  'demo-seller'
+from auth.users u
+where u.id = '44444444-4444-4444-8444-444444444444'
+on conflict (id) do update set
+  role = excluded.role,
+  nickname = excluded.nickname,
+  phone = excluded.phone,
+  language = excluded.language,
+  demo_key = excluded.demo_key,
+  updated_at = now();

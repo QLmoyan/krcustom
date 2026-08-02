@@ -167,10 +167,18 @@ export async function getQuoteById(identifier: string): Promise<QuoteResult> {
 /**
  * Seller quote list. Prefers Supabase; merges mock quotes for other demo
  * projects so /seller/quotes keeps the full demo list. Empty/fail → mock.
+ * Signed-in SELLER filters by profile.id via projects.seller_id.
  */
 export async function listForSeller(): Promise<QuotesResult> {
   try {
-    const rows = await quoteRepository.listForSeller();
+    const { getCurrentActorContext } = await import(
+      "@/lib/providers/authProvider"
+    );
+    const actor = await getCurrentActorContext();
+    const filter =
+      actor?.role === "SELLER" ? { sellerId: actor.profileId } : undefined;
+
+    const rows = await quoteRepository.listForSeller(filter);
     if (rows.length === 0) {
       return { quotes: mockQuotes, source: "mock" };
     }

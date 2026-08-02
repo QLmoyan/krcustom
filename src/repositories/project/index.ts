@@ -53,12 +53,28 @@ export async function existsProject(identifier: string): Promise<boolean> {
   return data !== null;
 }
 
-export async function listProjects(): Promise<ProjectRow[]> {
+export type ProjectListFilter = {
+  sellerId?: string;
+  customerId?: string;
+};
+
+export async function listProjects(
+  filter?: ProjectListFilter,
+): Promise<ProjectRow[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("projects")
     .select("*")
     .order("updated_at", { ascending: false });
+
+  if (filter?.sellerId) {
+    query = query.eq("seller_id", filter.sellerId);
+  }
+  if (filter?.customerId) {
+    query = query.eq("customer_id", filter.customerId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw error;
