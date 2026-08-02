@@ -25,9 +25,14 @@ export function CheckoutView({ order }: CheckoutViewProps) {
 
   return (
     <div className="mx-auto max-w-[720px] space-y-4">
-      <h1 className="text-[20px] font-bold text-[#0F172A] md:text-[22px]">
-        {copy.checkoutTitle}
-      </h1>
+      <div className="flex flex-wrap items-center gap-2">
+        <h1 className="text-[20px] font-bold text-[#0F172A] md:text-[22px]">
+          {copy.checkoutTitle}
+        </h1>
+        <span className="rounded-md border border-[#7DD3FC] bg-[#E0F2FE] px-2 py-0.5 text-[11px] font-semibold text-[#0369A1]">
+          {copy.demoBadge}
+        </span>
+      </div>
 
       <div className="rounded-xl border-2 border-[#7DD3FC] bg-[#E0F2FE] px-4 py-3 text-[13px] text-[#0369A1]">
         <p className="font-semibold text-[#0C4A6E]">{copy.demoHint}</p>
@@ -70,7 +75,7 @@ export function CheckoutView({ order }: CheckoutViewProps) {
         fullWidth
         onClick={() => router.push(`/checkout/${order.id}/failure`)}
       >
-        {ko.payment.failureTitle} (데모)
+        {copy.failureDemoLabel}
       </Button>
     </div>
   );

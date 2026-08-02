@@ -58,6 +58,7 @@ async function persistStatus(
   domain: WorkflowDomain,
   entityId: string,
   toStatus: string,
+  note?: string,
 ): Promise<boolean> {
   switch (domain) {
     case "project": {
@@ -73,9 +74,9 @@ async function persistStatus(
     case "designProof": {
       const designProofRepository = await import("@/repositories/designProof");
       if (toStatus === "CONFIRMED") {
-        await designProofRepository.approve(entityId);
+        await designProofRepository.approve(entityId, note);
       } else if (toStatus === "REVISION_REQUESTED") {
-        await designProofRepository.reject(entityId);
+        await designProofRepository.reject(entityId, note);
       } else {
         await designProofRepository.updateStatus(entityId, toStatus);
       }
@@ -187,7 +188,8 @@ async function chatSideEffect(input: WorkflowEventInput): Promise<boolean> {
 
 /**
  * Core workflow applicator: validate → persist → timeline → notification → chat.
- * Demo / missing Supabase: validates and returns mock success (no side effects).
+ * Missing Supabase config: returns mock (no write). Persist failure: ok=false
+ * (no silent Demo success for write paths).
  */
 export async function applyWorkflowEvent(
   input: WorkflowEventInput,
@@ -207,11 +209,12 @@ export async function applyWorkflowEvent(
 
   if (!isSupabaseConfigured()) {
     return {
-      ok: true,
+      ok: false,
       domain,
       fromStatus,
       toStatus,
       source: "mock",
+      error: "Supabase is not configured",
       timelineAppended: false,
       notificationCreated: false,
       chatNotified: false,
@@ -219,15 +222,18 @@ export async function applyWorkflowEvent(
   }
 
   try {
-    await persistStatus(domain, input.entityId, toStatus);
-  } catch {
-    // Persist failed (RLS / missing row) — treat as demo mock success
+    await persistStatus(domain, input.entityId, toStatus, input.note);
+  } catch (error) {
     return {
-      ok: true,
+      ok: false,
       domain,
       fromStatus,
       toStatus,
       source: "mock",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to persist workflow status",
       timelineAppended: false,
       notificationCreated: false,
       chatNotified: false,

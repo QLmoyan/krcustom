@@ -311,9 +311,18 @@ export async function updateStatus(
   }
 
   const supabase = await createClient();
+  const patch: QuoteUpdate = { status };
+  if (status === "ACCEPTED") {
+    patch.customer_confirmed = true;
+    patch.approved_at = new Date().toISOString();
+  }
+  if (status === "REVISION_REQUESTED" || status === "REJECTED") {
+    patch.customer_confirmed = false;
+  }
+
   const { error } = await supabase
     .from("quotes")
-    .update({ status } satisfies QuoteUpdate)
+    .update(patch)
     .eq("id", existing.id);
 
   if (error) {

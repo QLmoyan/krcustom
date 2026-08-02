@@ -1,6 +1,14 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { QuoteStatus, getStatusLabel } from "@/constants/status";
+import {
+  confirmQuoteAction,
+  requestQuoteRevisionAction,
+} from "@/lib/actions/quote";
 import { formatKRW } from "@/lib/format";
 import { ko } from "@/messages";
 import type { Quote, QuoteStatus as QuoteStatusCode } from "@/types/Quote";
@@ -10,15 +18,45 @@ const copy = ko.quote;
 type QuoteCardProps = {
   quote: Quote;
   showActions?: boolean;
-  checkoutOrderId?: string;
+  checkoutOrderId?: string | null;
 };
 
 export function QuoteCard({
   quote,
   showActions = true,
-  checkoutOrderId = "ord-001",
+  checkoutOrderId = null,
 }: QuoteCardProps) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const accepted = quote.status === QuoteStatus.ACCEPTED;
+  const canRespond = quote.status === QuoteStatus.SENT;
+
+  function runAction(kind: "accept" | "revise") {
+    setError(null);
+    startTransition(async () => {
+      const result =
+        kind === "accept"
+          ? await confirmQuoteAction({
+              quoteId: quote.id,
+              projectId: quote.projectId,
+            })
+          : await requestQuoteRevisionAction({
+              quoteId: quote.id,
+              projectId: quote.projectId,
+            });
+
+      if (!result.ok) {
+        setError(
+          result.needAuth
+            ? ko.project.chatLoginRequired
+            : result.error || copy.actionFailed,
+        );
+        return;
+      }
+      router.refresh();
+    });
+  }
 
   return (
     <article className="rounded-xl border border-[#BAE6FD] bg-[#F0F9FF] p-4">
@@ -64,31 +102,61 @@ export function QuoteCard({
         {quote.sentAt ? ` · ${ko.project.sentAt} ${quote.sentAt}` : ""}
       </p>
 
+      {error ? (
+        <p className="mt-2 rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-[12px] text-[#B91C1C]">
+          {error}
+        </p>
+      ) : null}
+
       {showActions ? (
         <div className="mt-3 flex flex-wrap gap-2">
           {accepted ? (
             <>
-              <Button
-                href={`/orders/${checkoutOrderId}`}
-                variant="secondary"
-                size="sm"
-              >
-                {ko.order.openOrder}
-              </Button>
-              <Button
-                href={`/checkout/${checkoutOrderId}`}
-                variant="primary"
-                size="sm"
-              >
-                {ko.order.proceedPayment}
-              </Button>
+              {checkoutOrderId ? (
+                <>
+                  <Button
+                    href={`/orders/${checkoutOrderId}`}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    {ko.order.openOrder}
+                  </Button>
+                  <Button
+                    href={`/checkout/${checkoutOrderId}`}
+                    variant="primary"
+                    size="sm"
+                  >
+                    {ko.order.proceedPayment}
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  href={`/project/${quote.projectId}`}
+                  variant="secondary"
+                  size="sm"
+                >
+                  {ko.project.workspace}
+                </Button>
+              )}
             </>
           ) : (
             <>
-              <Button type="button" variant="primary" size="sm" disabled>
-                {copy.accept}
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                disabled={pending || !canRespond}
+                onClick={() => runAction("accept")}
+              >
+                {pending ? copy.saving : copy.accept}
               </Button>
-              <Button type="button" variant="outline" size="sm" disabled>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={pending || !canRespond}
+                onClick={() => runAction("revise")}
+              >
                 {copy.requestChange}
               </Button>
             </>

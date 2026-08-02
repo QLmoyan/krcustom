@@ -12,6 +12,7 @@ import {
   type SellerRecentOrder,
 } from "@/data/mockSellerDashboard";
 import { DEMO } from "@/data/demoFlow";
+import { getCurrentUser } from "@/lib/providers/authProvider";
 import { getUnreadNotificationCount } from "@/lib/providers/notificationProvider";
 import { listProjects } from "@/lib/providers/projectProvider";
 import { getSellerDashboardSnapshot } from "@/lib/providers/sellerDashboardProvider";
@@ -33,10 +34,13 @@ function mapProjectToRecentOrder(project: ProjectRow): SellerRecentOrder {
 
 export default async function SellerDashboardPage() {
   const data = mockSellerDashboard;
+  const user = await getCurrentUser();
   const snapshot = await getSellerDashboardSnapshot();
   const { projects, source } = await listProjects();
   const { count: unreadNotificationCount } =
-    await getUnreadNotificationCount();
+    await getUnreadNotificationCount({
+      userId: user?.profile.id ?? null,
+    });
 
   const onlyDemoSeed =
     source === "supabase" &&

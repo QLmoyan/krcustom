@@ -12,9 +12,9 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { DesignProofStatus } from "@/constants/status";
 import { formatFileSize } from "@/lib/file";
 import { formatKRW } from "@/lib/format";
-import { getQuoteById } from "@/data/mockQuotes";
 import { ko } from "@/messages";
 import type { DesignProof } from "@/types/DesignProof";
+import type { Quote } from "@/types/Quote";
 import type { TimelineEvent } from "@/types/TimelineEvent";
 
 const copy = ko.designProof;
@@ -23,32 +23,20 @@ type SellerDesignProofDetailViewProps = {
   initialProof: DesignProof;
   versions: DesignProof[];
   timeline: TimelineEvent[];
+  quote?: Quote | null;
 };
 
 export function SellerDesignProofDetailView({
   initialProof,
   versions,
   timeline,
+  quote = null,
 }: SellerDesignProofDetailViewProps) {
   const [activeId, setActiveId] = useState(initialProof.id);
-  const [lockedLocally, setLockedLocally] = useState(
-    initialProof.status === DesignProofStatus.LOCKED,
-  );
 
   const active = useMemo(() => {
-    const found = versions.find((proof) => proof.id === activeId);
-    if (!found) return initialProof;
-    if (lockedLocally && found.id === initialProof.id) {
-      return {
-        ...found,
-        status: DesignProofStatus.LOCKED,
-        lockedAt: found.lockedAt || "2026.07.15 03:50",
-      };
-    }
-    return found;
-  }, [activeId, initialProof, lockedLocally, versions]);
-
-  const quote = active.quoteId ? getQuoteById(active.quoteId) : undefined;
+    return versions.find((proof) => proof.id === activeId) ?? initialProof;
+  }, [activeId, initialProof, versions]);
 
   return (
     <div className="mx-auto w-full max-w-[1100px] space-y-4">
@@ -78,18 +66,10 @@ export function SellerDesignProofDetailView({
           >
             {copy.backToWorkspace}
           </Link>
-          {active.projectId === "prj-001" ? (
-            <Link
-              href="/seller/orders/ord-001"
-              className="text-[12px] font-semibold text-[#0369A1] hover:underline"
-            >
-              {ko.order.openOrder}
-            </Link>
-          ) : null}
         </div>
       </div>
 
-      {active.status === DesignProofStatus.LOCKED || lockedLocally ? (
+      {active.status === DesignProofStatus.LOCKED ? (
         <div className="rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-[13px] text-[#15803D]">
           {copy.lockedHint}
         </div>
@@ -145,11 +125,7 @@ export function SellerDesignProofDetailView({
       ) : null}
 
       <div id="upload">
-        <DesignProofActionPanel
-          proof={active}
-          mode="seller"
-          onLock={() => setLockedLocally(true)}
-        />
+        <DesignProofActionPanel proof={active} mode="seller" />
       </div>
 
       <DesignProofTimeline events={timeline} />

@@ -1,12 +1,16 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import {
   calcItemAmount,
   calcQuoteTotals,
-  getQuotesByProjectId,
 } from "@/data/mockQuotes";
+import {
+  saveQuoteDraftAction,
+  sendQuoteAction,
+} from "@/lib/actions/quote";
 import { formatKRW } from "@/lib/format";
 import { ko } from "@/messages";
 import type { Quote, QuoteItem } from "@/types/Quote";
@@ -27,9 +31,21 @@ const PRESET_NAMES = [
 type QuoteBuilderProps = {
   projectId: string;
   initialQuote: Quote;
+  /** Real quote id used as append-only source (not the draft seed id). */
+  baseQuoteId: string;
+  previousQuote?: Quote | null;
 };
 
-export function QuoteBuilder({ projectId, initialQuote }: QuoteBuilderProps) {
+export function QuoteBuilder({
+  projectId,
+  initialQuote,
+  baseQuoteId,
+  previousQuote = null,
+}: QuoteBuilderProps) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [items, setItems] = useState<QuoteItem[]>(
     initialQuote.items.map((item) => ({ ...item })),
   );
@@ -43,10 +59,6 @@ export function QuoteBuilder({ projectId, initialQuote }: QuoteBuilderProps) {
   const totals = useMemo(
     () => calcQuoteTotals({ items, discount, shippingFee, extraFee, tax }),
     [discount, extraFee, items, shippingFee, tax],
-  );
-
-  const previousVersion = getQuotesByProjectId(projectId).find(
-    (quote) => quote.version === initialQuote.version - 1,
   );
 
   function updateItem(id: string, patch: Partial<QuoteItem>) {
@@ -96,19 +108,62 @@ export function QuoteBuilder({ projectId, initialQuote }: QuoteBuilderProps) {
   }
 
   function copyPrevious() {
-    if (!previousVersion) return;
+    if (!previousQuote) return;
     setItems(
-      previousVersion.items.map((item) => {
+      previousQuote.items.map((item) => {
         const id = `${item.id}-copy-${nextItemSeq.current}`;
         nextItemSeq.current += 1;
         return { ...item, id };
       }),
     );
-    setDiscount(previousVersion.discount);
-    setShippingFee(previousVersion.shippingFee);
-    setExtraFee(previousVersion.extraFee);
-    setTax(previousVersion.tax);
-    setNote(previousVersion.note);
+    setDiscount(previousQuote.discount);
+    setShippingFee(previousQuote.shippingFee);
+    setExtraFee(previousQuote.extraFee);
+    setTax(previousQuote.tax);
+    setNote(previousQuote.note);
+  }
+
+  function buildPayload() {
+    return {
+      projectId,
+      baseQuoteId,
+      items,
+      discount,
+      shippingFee,
+      extraFee,
+      tax,
+      note,
+      subtotal: totals.subtotal,
+      total: totals.total,
+    };
+  }
+
+  function runSave(kind: "draft" | "send") {
+    setError(null);
+    setSuccess(null);
+    startTransition(async () => {
+      const result =
+        kind === "draft"
+          ? await saveQuoteDraftAction(buildPayload())
+          : await sendQuoteAction(buildPayload());
+
+      if (!result.ok) {
+        setError(
+          result.needAuth
+            ? ko.project.chatLoginRequired
+            : result.error || copy.actionFailed,
+        );
+        return;
+      }
+
+      setSuccess(kind === "draft" ? copy.draftSaved : copy.quoteSent);
+      if (kind === "send") {
+        router.push(`/project/${projectId}`);
+        router.refresh();
+        return;
+      }
+      router.refresh();
+    });
   }
 
   return (
@@ -282,13 +337,31 @@ export function QuoteBuilder({ projectId, initialQuote }: QuoteBuilderProps) {
         </section>
 
         <div className="space-y-2 rounded-xl border border-[#E2E8F0] bg-white p-3">
-          <Button type="button" variant="outline" className="w-full" disabled>
-            {copy.saveDraft}
+          {error ? (
+            <p className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-[12px] text-[#B91C1C]">
+              {error}
+            </p>
+          ) : null}
+          {success ? (
+            <p className="rounded-lg border border-[#BBF7D0] bg-[#F0FDF4] px-3 py-2 text-[12px] text-[#15803D]">
+              {success}
+            </p>
+          ) : null}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={pending || items.length === 0}
+            onClick={() => runSave("draft")}
+          >
+            {pending ? copy.saving : copy.saveDraft}
           </Button>
           <Button
-            href={`/project/${projectId}`}
+            type="button"
             variant="primary"
             className="w-full"
+            disabled={pending || items.length === 0}
+            onClick={() => runSave("send")}
           >
             {copy.sendQuote}
           </Button>
@@ -296,13 +369,13 @@ export function QuoteBuilder({ projectId, initialQuote }: QuoteBuilderProps) {
             type="button"
             variant="secondary"
             className="w-full"
-            disabled={!previousVersion}
+            disabled={!previousQuote || pending}
             onClick={copyPrevious}
           >
             {copy.copyPrevious}
-            {previousVersion ? ` (V${previousVersion.version})` : ""}
+            {previousQuote ? ` (V${previousQuote.version})` : ""}
           </Button>
-          <p className="text-[11px] text-[#94A3B8]">{copy.demoAction}</p>
+          <p className="text-[11px] text-[#94A3B8]">{copy.writeHint}</p>
         </div>
       </aside>
     </div>

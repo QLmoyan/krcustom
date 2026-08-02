@@ -88,7 +88,14 @@ export default async function QuoteBuilderPage({
             </Link>
           </div>
 
-          <QuoteBuilder projectId={id} initialQuote={draftSeed} />
+          <QuoteBuilder
+            projectId={id}
+            initialQuote={draftSeed}
+            baseQuoteId={builderQuote.id}
+            previousQuote={
+              quotes.find((q) => q.version === builderQuote.version - 1) ?? null
+            }
+          />
         </Container>
       </main>
       {id === "prj-001" ? <DemoFlowHint step={3} /> : null}

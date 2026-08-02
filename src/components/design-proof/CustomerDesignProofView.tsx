@@ -1,43 +1,36 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { DesignProofActionPanel } from "@/components/design-proof/DesignProofActionPanel";
 import { DesignProofFeedback } from "@/components/design-proof/DesignProofFeedback";
 import { DesignProofPreview } from "@/components/design-proof/DesignProofPreview";
 import { DesignProofVersionList } from "@/components/design-proof/DesignProofVersionList";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { DesignProofStatus } from "@/constants/status";
-import { getQuoteById } from "@/data/mockQuotes";
+import { DesignProofStatus, getStatusLabel } from "@/constants/status";
 import { formatKRW } from "@/lib/format";
 import { ko } from "@/messages";
 import type { DesignProof } from "@/types/DesignProof";
-import { getStatusLabel } from "@/constants/status";
+import type { Quote } from "@/types/Quote";
 
 const copy = ko.designProof;
 
 type CustomerDesignProofViewProps = {
   proof: DesignProof;
   versions: DesignProof[];
+  quote?: Quote | null;
+  checkoutOrderId?: string | null;
 };
 
 export function CustomerDesignProofView({
   proof,
   versions,
+  quote = null,
+  checkoutOrderId = null,
 }: CustomerDesignProofViewProps) {
-  const [uiStatus, setUiStatus] = useState(proof.status);
-  const [confirmedLocal, setConfirmedLocal] = useState(
+  const confirmed =
     proof.status === DesignProofStatus.CONFIRMED ||
-      proof.status === DesignProofStatus.LOCKED,
-  );
-
-  const displayProof: DesignProof = {
-    ...proof,
-    status: uiStatus,
-  };
-
-  const quote = proof.quoteId ? getQuoteById(proof.quoteId) : undefined;
+    proof.status === DesignProofStatus.LOCKED;
 
   return (
     <div className="space-y-4">
@@ -53,14 +46,14 @@ export function CustomerDesignProofView({
             {copy.serviceInfo}: {proof.serviceName} · {proof.storeName}
           </p>
         </div>
-        <StatusBadge domain="designProof" status={uiStatus} />
+        <StatusBadge domain="designProof" status={proof.status} />
       </div>
 
-      {confirmedLocal ? (
+      {confirmed ? (
         <div className="rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-[13px] text-[#15803D]">
-          {uiStatus === DesignProofStatus.LOCKED
+          {proof.status === DesignProofStatus.LOCKED
             ? copy.lockedBanner
-            : copy.confirmedLocal}
+            : copy.confirmedSaved}
         </div>
       ) : (
         <div className="rounded-xl border border-[#FDE68A] bg-[#FEFCE8] px-4 py-3 text-[13px] text-[#A16207]">
@@ -72,10 +65,10 @@ export function CustomerDesignProofView({
         <h2 className="mb-3 text-[15px] font-semibold text-[#0F172A]">
           {copy.preview}
         </h2>
-        <DesignProofPreview proof={displayProof} large />
+        <DesignProofPreview proof={proof} large />
       </section>
 
-      <DesignProofFeedback proof={displayProof} />
+      <DesignProofFeedback proof={proof} />
 
       {quote ? (
         <section className="rounded-xl border border-[#BAE6FD] bg-[#F0F9FF] p-4">
@@ -100,14 +93,7 @@ export function CustomerDesignProofView({
         </section>
       ) : null}
 
-      <DesignProofActionPanel
-        proof={displayProof}
-        mode="customer"
-        onConfirm={() => {
-          setUiStatus(DesignProofStatus.CONFIRMED);
-          setConfirmedLocal(true);
-        }}
-      />
+      <DesignProofActionPanel proof={proof} mode="customer" />
 
       <DesignProofVersionList versions={versions} activeId={proof.id} />
 
@@ -124,16 +110,16 @@ export function CustomerDesignProofView({
         >
           {copy.viewQuote}
         </Link>
-        {confirmedLocal || uiStatus === DesignProofStatus.LOCKED ? (
+        {confirmed && checkoutOrderId ? (
           <>
             <Link
-              href="/checkout/ord-001"
+              href={`/checkout/${checkoutOrderId}`}
               className="text-[13px] font-semibold text-[#0369A1] hover:underline"
             >
               {copy.checkoutPay}
             </Link>
             <Link
-              href="/orders/ord-001"
+              href={`/orders/${checkoutOrderId}`}
               className="text-[13px] font-semibold text-[#0F766E] hover:underline"
             >
               {ko.order.openOrder}

@@ -9,6 +9,8 @@ import {
   getDesignProofById,
   getDesignProofsByProjectId,
 } from "@/lib/providers/designProofProvider";
+import { getOrderByProjectId } from "@/lib/providers/orderProvider";
+import { getLatestQuote } from "@/lib/providers/quoteProvider";
 import { ko } from "@/messages";
 
 type CustomerDesignProofPageProps = {
@@ -43,13 +45,20 @@ export default async function CustomerDesignProofPage({
   const { proofs: versions } = await getDesignProofsByProjectId(
     proof.projectId,
   );
+  const { quote } = await getLatestQuote(proof.projectId);
+  const { order } = await getOrderByProjectId(proof.projectId);
 
   return (
     <div className="min-h-full bg-[#F8FAFC] pb-20 md:pb-8">
       <Header />
       <main>
         <Container className="py-4 md:py-5">
-          <CustomerDesignProofView proof={proof} versions={versions} />
+          <CustomerDesignProofView
+            proof={proof}
+            versions={versions}
+            quote={quote}
+            checkoutOrderId={order?.id ?? null}
+          />
         </Container>
       </main>
       {id === DEMO.designProofId ? <DemoFlowHint step={4} /> : null}

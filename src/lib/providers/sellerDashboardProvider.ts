@@ -188,12 +188,16 @@ function deriveTodos(input: {
  * Notification / Chat providers. Empty or error → mock fallback.
  */
 export async function getSellerDashboardSnapshot(): Promise<SellerDashboardSnapshot> {
+  const { getCurrentUser } = await import("@/lib/providers/authProvider");
+  const user = await getCurrentUser();
+  const userId = user?.profile.id ?? null;
+
   const [quotesResult, proofsResult, ordersResult, notifResult, chatResult] =
     await Promise.all([
       listQuotesForSeller(),
       listDesignProofsForSeller(),
       listOrdersForSeller(),
-      listNotifications({ unreadOnly: false }),
+      listNotifications({ userId, unreadOnly: false }),
       listConversations(),
     ]);
 

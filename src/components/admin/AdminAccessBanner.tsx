@@ -4,9 +4,22 @@ import type { UserRole } from "@/types/Role";
 type AdminAccessBannerProps = {
   role: UserRole | null;
   signedIn: boolean;
+  demoBypass?: boolean;
 };
 
-export function AdminAccessBanner({ role, signedIn }: AdminAccessBannerProps) {
+export function AdminAccessBanner({
+  role,
+  signedIn,
+  demoBypass = false,
+}: AdminAccessBannerProps) {
+  if (demoBypass) {
+    return (
+      <p className="rounded-lg border border-[#FDE68A] bg-[#FFFBEB] px-3 py-2 text-[12px] text-[#92400E]">
+        {ko.admin.accessHintDevBypass}
+      </p>
+    );
+  }
+
   if (role === "ADMIN") {
     return (
       <p className="rounded-lg border border-[#99F6E4] bg-[#F0FDFA] px-3 py-2 text-[12px] text-[#0F766E]">

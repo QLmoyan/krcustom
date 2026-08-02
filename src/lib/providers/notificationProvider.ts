@@ -124,19 +124,26 @@ export function mapRowToNotification(row: NotificationRow): AppNotification {
 }
 
 /**
- * List notifications. Demo seed readable anonymously; falls back to mock.
+ * List notifications for a user. Authenticated calls with userId never
+ * fall back to shared mock seed (isolation). Anonymous / missing userId
+ * may use mock only when Supabase returns empty or errors.
  */
 export async function listNotifications(options?: {
   userId?: string | null;
   unreadOnly?: boolean;
 }): Promise<NotificationsResult> {
+  const scopedUserId = options?.userId;
+
   try {
     const rows = await notificationRepository.listNotifications({
-      userId: options?.userId,
+      userId: scopedUserId,
       unreadOnly: options?.unreadOnly,
     });
 
     if (rows.length === 0) {
+      if (scopedUserId) {
+        return { notifications: [], source: "supabase" };
+      }
       const mock = options?.unreadOnly
         ? MOCK_NOTIFICATIONS.filter((n) => !n.isRead)
         : MOCK_NOTIFICATIONS;
@@ -148,6 +155,9 @@ export async function listNotifications(options?: {
       source: "supabase",
     };
   } catch {
+    if (scopedUserId) {
+      return { notifications: [], source: "mock" };
+    }
     const mock = options?.unreadOnly
       ? MOCK_NOTIFICATIONS.filter((n) => !n.isRead)
       : MOCK_NOTIFICATIONS;

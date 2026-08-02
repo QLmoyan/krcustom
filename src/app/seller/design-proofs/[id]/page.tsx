@@ -7,6 +7,7 @@ import {
   getDesignProofsByProjectId,
   getDesignProofTimeline,
 } from "@/lib/providers/designProofProvider";
+import { getLatestQuote } from "@/lib/providers/quoteProvider";
 import { mockSellerDashboard } from "@/data/mockSellerDashboard";
 import { ko } from "@/messages";
 
@@ -45,6 +46,7 @@ export default async function SellerDesignProofDetailPage({
     proof.projectId,
   );
   const timeline = await getDesignProofTimeline(proof.projectId);
+  const { quote } = await getLatestQuote(proof.projectId);
 
   return (
     <SellerLayout
@@ -56,6 +58,7 @@ export default async function SellerDesignProofDetailPage({
         initialProof={proof}
         versions={versions}
         timeline={timeline}
+        quote={quote}
       />
       <p className="mx-auto mt-4 max-w-[1100px] text-[12px] text-[#94A3B8]">
         <Link href={`/project/${proof.projectId}`} className="hover:underline">

@@ -104,6 +104,12 @@ export function Header({ showPopularSearches = false }: HeaderProps) {
             {ko.nav.messages}
           </Link>
           <Link
+            href="/notifications"
+            className="rounded-lg px-3 py-2 text-[15px] font-medium text-[#0F172A] hover:bg-[#F8FAFC]"
+          >
+            {ko.nav.notifications}
+          </Link>
+          <Link
             href="/orders"
             className="rounded-lg px-3 py-2 text-[15px] font-medium text-[#0F172A] hover:bg-[#F8FAFC]"
           >
@@ -208,6 +214,13 @@ export function Header({ showPopularSearches = false }: HeaderProps) {
               onClick={() => setMenuOpen(false)}
             >
               {ko.nav.messages}
+            </Link>
+            <Link
+              href="/notifications"
+              className="rounded-lg px-3 py-2.5 text-[15px] text-[#0F172A] hover:bg-[#F8FAFC]"
+              onClick={() => setMenuOpen(false)}
+            >
+              {ko.nav.notifications}
             </Link>
             <Link
               href="/orders"

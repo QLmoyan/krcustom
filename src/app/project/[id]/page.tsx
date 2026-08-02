@@ -172,7 +172,10 @@ export default async function ProjectWorkspacePage({
                   <h2 className="mb-2 text-[15px] font-semibold text-[#0F172A]">
                     {ko.project.quoteCard}
                   </h2>
-                  <QuoteCard quote={latestQuote} />
+                  <QuoteCard
+                    quote={latestQuote}
+                    checkoutOrderId={order?.id ?? null}
+                  />
                 </section>
               ) : null}
               <QuoteHistoryModule projectId={id} quotes={quotes} />
