@@ -5,13 +5,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { signInAction } from "@/lib/auth/actions";
+import { sanitizeReturnTo } from "@/lib/safeReturnTo";
 import { SUPABASE_NOT_CONFIGURED } from "@/lib/supabase/env";
 import { ko } from "@/messages";
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get("next") || "/";
+  const returnTo = sanitizeReturnTo(
+    searchParams.get("returnTo") ?? searchParams.get("next"),
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,7 +46,7 @@ export function LoginForm() {
         return;
       }
 
-      router.replace(nextPath.startsWith("/") ? nextPath : "/");
+      router.replace(returnTo);
       router.refresh();
     } catch {
       setError(ko.auth.loginFailed);
@@ -105,7 +108,7 @@ export function LoginForm() {
       <p className="text-center text-[13px] text-[#64748B]">
         {ko.auth.noAccount}{" "}
         <Link
-          href={`/signup${nextPath !== "/" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
+          href={`/signup${returnTo !== "/" ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`}
           className="font-semibold text-[#0F766E] hover:underline"
         >
           {ko.auth.goSignup}

@@ -14,7 +14,6 @@ type ServiceInquirySectionProps = {
 
 export function ServiceInquirySection({ service }: ServiceInquirySectionProps) {
   const router = useRouter();
-  const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -25,14 +24,13 @@ export function ServiceInquirySection({ service }: ServiceInquirySectionProps) {
       formData.set("serviceId", service.id);
       formData.set("serviceTitle", service.title);
       formData.set("storeName", service.storeName);
-      formData.set("note", note);
 
       const result = await createInquiryProject(formData);
 
       if (!result.ok) {
         if (result.needAuth) {
-          const next = encodeURIComponent(`/service/${service.id}`);
-          router.push(`/login?next=${next}`);
+          const returnTo = encodeURIComponent(`/service/${service.id}`);
+          router.push(`/login?returnTo=${returnTo}`);
           return;
         }
         setError(ko.service.createFailed);
@@ -47,12 +45,7 @@ export function ServiceInquirySection({ service }: ServiceInquirySectionProps) {
 
   return (
     <div className="space-y-3.5">
-      <ServiceOptions
-        service={service}
-        note={note}
-        onNoteChange={setNote}
-        uploadDisabled={pending}
-      />
+      <ServiceOptions service={service} uploadDisabled={pending} />
 
       {error ? (
         <p className="break-keep text-[13px] text-[#DC2626]" role="alert">

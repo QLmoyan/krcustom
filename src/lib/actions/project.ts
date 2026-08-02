@@ -55,7 +55,6 @@ export async function createInquiryProject(
   const serviceId = String(formData.get("serviceId") ?? "");
   const serviceTitle = String(formData.get("serviceTitle") ?? "");
   const storeName = String(formData.get("storeName") ?? "");
-  const note = String(formData.get("note") ?? "");
 
   if (!serviceId || !serviceTitle) {
     return { ok: false, error: "Missing service fields" };
@@ -65,10 +64,7 @@ export async function createInquiryProject(
     const projectNumber = buildProjectNumber();
     const statusLabel =
       PROJECT_STATUS_META[ProjectStatus.INQUIRY]?.label ?? "문의";
-    const descriptionParts = [
-      storeName ? `상점: ${storeName}` : null,
-      note.trim() ? note.trim() : null,
-    ].filter(Boolean);
+    const description = storeName ? `상점: ${storeName}` : null;
 
     const project = await createProjectViaProvider({
       service_id: resolveServiceUuid(serviceId),
@@ -76,7 +72,7 @@ export async function createInquiryProject(
       seller_id: DEMO_UUIDS.seller,
       status: ProjectStatus.INQUIRY,
       title: serviceTitle || statusLabel,
-      description: descriptionParts.join("\n") || null,
+      description,
       project_number: projectNumber,
       demo_key: null,
     });

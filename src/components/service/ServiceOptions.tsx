@@ -6,15 +6,11 @@ import { ko } from "@/messages";
 
 type ServiceOptionsProps = {
   service: Service;
-  note?: string;
-  onNoteChange?: (value: string) => void;
   uploadDisabled?: boolean;
 };
 
 export function ServiceOptions({
   service,
-  note: controlledNote,
-  onNoteChange,
   uploadDisabled = false,
 }: ServiceOptionsProps) {
   const optionGroups = service.availableOptions ?? [];
@@ -25,10 +21,6 @@ export function ServiceOptions({
     () => buildDefaultSelections(optionGroups),
   );
   const [quantity, setQuantity] = useState(minQuantity);
-  const [internalNote, setInternalNote] = useState("");
-
-  const note = controlledNote ?? internalNote;
-  const setNote = onNoteChange ?? setInternalNote;
 
   const matchedTierNote = quantityTiers?.find((item) => {
     const withinMin = quantity >= item.minQuantity;
@@ -127,27 +119,6 @@ export function ServiceOptions({
             ))}
           </ul>
         ) : null}
-      </div>
-
-      <div>
-        <label
-          htmlFor="service-note"
-          className="mb-1.5 block text-[13px] font-semibold text-[#0F172A]"
-        >
-          {ko.service.customRequestNote}
-        </label>
-        <textarea
-          id="service-note"
-          rows={3}
-          value={note}
-          disabled={uploadDisabled}
-          onChange={(event) => setNote(event.target.value)}
-          placeholder={ko.service.customRequestPlaceholder}
-          className="w-full resize-y rounded-lg border border-[#E2E8F0] px-3 py-2 text-[14px] leading-relaxed text-[#0F172A] outline-none placeholder:text-[#94A3B8] focus:border-[#0F766E] focus:ring-4 focus:ring-[#0F766E]/15 disabled:opacity-60"
-        />
-        <p className="mt-1.5 break-keep text-[11px] text-[#94A3B8]">
-          {ko.service.referenceInChatHint}
-        </p>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { ko } from "@/messages";
 
@@ -33,7 +32,7 @@ export function ServiceActionPanel({
   }
 
   return (
-    <div className="space-y-2">
+    <div>
       <Button
         type="button"
         variant="primary"
@@ -44,16 +43,6 @@ export function ServiceActionPanel({
       >
         {pending ? ko.service.creatingProject : ko.service.chatInquiry}
       </Button>
-
-      <p className="text-[11px] text-[#94A3B8]">
-        {ko.service.loginRequiredForInquiry}{" "}
-        <Link
-          href="/messages"
-          className="font-semibold text-[#0F766E] hover:underline"
-        >
-          {ko.service.demoFallback}
-        </Link>
-      </p>
     </div>
   );
 }

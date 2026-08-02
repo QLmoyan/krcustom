@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { formatCount } from "@/lib/format";
 import { ko } from "@/messages";
 import type { Store } from "@/types";
@@ -53,21 +52,13 @@ export function StoreInfoCard({ store }: StoreInfoCardProps) {
           </ul>
         </div>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-3">
         <Link
           href={`/store/${store.id}`}
-          className="inline-flex h-9 items-center justify-center rounded-lg border border-[#CBD5E1] text-[13px] font-semibold text-[#0F172A] hover:bg-[#F8FAFC]"
+          className="inline-flex h-9 w-full items-center justify-center rounded-lg border border-[#CBD5E1] text-[13px] font-semibold text-[#0F172A] hover:bg-[#F8FAFC]"
         >
           {ko.service.visitStore}
         </Link>
-        <Button
-          href="/messages"
-          variant="secondary"
-          size="sm"
-          className="h-9 border border-[#BAE6FD]"
-        >
-          {ko.store.startChat}
-        </Button>
       </div>
     </section>
   );
