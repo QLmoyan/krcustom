@@ -14,13 +14,13 @@ export function workflowTimelineTitle(
   const label = getStatusLabel(domain, toStatus, toStatus);
   switch (domain) {
     case "project":
-      return `프로젝트 상태 변경: ${label}`;
+      return label;
     case "quote":
-      return `견적 상태 변경: ${label}`;
+      return label;
     case "designProof":
-      return `시안 상태 변경: ${label}`;
+      return label;
     case "order":
-      return `주문 상태 변경: ${label}`;
+      return label;
   }
 }
 
@@ -54,7 +54,7 @@ export function workflowChatBody(
   fromStatus: string,
   toStatus: string,
 ): string {
-  return `[시스템] ${workflowTimelineDescription(domain, fromStatus, toStatus)}`;
+  return workflowTimelineDescription(domain, fromStatus, toStatus);
 }
 
 /** Map domain + target status onto existing notification type constraint. */

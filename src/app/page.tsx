@@ -76,20 +76,20 @@ export default function HomePage() {
                 </div>
                 <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                   <Button
-                    href="/custom-request/new"
+                    href="/category/all"
                     variant="primary"
                     size="md"
                     className="w-full whitespace-nowrap sm:w-auto"
                   >
-                    {ko.home.ctaButton}
+                    {ko.home.searchButton}
                   </Button>
                   <Button
-                    href="/service/svc-001#owned"
+                    href="/custom-request/new"
                     variant="outline"
                     size="md"
                     className="w-full whitespace-nowrap sm:w-auto"
                   >
-                    {ko.home.customOwnedEntry}
+                    {ko.home.ctaButton}
                   </Button>
                 </div>
               </div>
@@ -211,7 +211,7 @@ export default function HomePage() {
                   {ko.home.ctaDescription}
                 </p>
                 <div className="mt-5 flex justify-center">
-                  <Button href="/custom-request/new" size="lg">
+                  <Button href="/custom-request/new" variant="outline" size="lg">
                     {ko.home.ctaButton}
                   </Button>
                 </div>

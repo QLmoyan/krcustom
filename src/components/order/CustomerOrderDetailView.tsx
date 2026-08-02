@@ -37,16 +37,6 @@ export function CustomerOrderDetailView({
 
       <OrderSummary order={order} />
       <OrderStatusPanel nextAction={order.nextAction}>
-        {needPay ? (
-          <Button
-            href={`/checkout/${order.id}`}
-            variant="primary"
-            size="sm"
-            className="mt-3"
-          >
-            {copy.openCheckout}
-          </Button>
-        ) : null}
         {order.paymentStatus === "PAID" ? (
           <p className="mt-2 text-[12px] text-[#15803D]">{copy.paidBanner}</p>
         ) : null}
@@ -169,23 +159,23 @@ export function CustomerOrderDetailView({
       </section>
 
       <OrderAmountBreakdown order={order} />
-      <OrderTimeline events={order.timeline} />
+      <OrderTimeline events={order.timeline} variant="customer" />
 
       <div className="flex flex-wrap gap-2">
+        {needPay ? (
+          <Button href={`/checkout/${order.id}`} variant="primary" size="sm">
+            {copy.confirmOrder}
+          </Button>
+        ) : null}
         <Button type="button" variant="outline" size="sm" disabled>
           {copy.cancel}
         </Button>
         <Button type="button" variant="outline" size="sm" disabled>
           {copy.refund}
         </Button>
-        <Button href="/messages" variant="ghost" size="sm">
+        <Button href={`/project/${order.projectId}`} variant="ghost" size="sm">
           {copy.contactSeller}
         </Button>
-        {order.paymentStatus !== "PAID" || order.id === "ord-001" ? (
-          <Button href={`/checkout/${order.id}`} variant="primary" size="sm">
-            {copy.openCheckout}
-          </Button>
-        ) : null}
       </div>
 
       <AddressBlock

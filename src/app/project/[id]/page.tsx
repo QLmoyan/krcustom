@@ -8,13 +8,11 @@ import { ProjectLogisticsModule } from "@/components/project/ProjectLogisticsMod
 import { ProjectOrderModule } from "@/components/project/ProjectOrderModule";
 import { ProjectOwnedItemModule } from "@/components/project/ProjectOwnedItemModule";
 import { ProjectProductionModule } from "@/components/project/ProjectProductionModule";
-import { ProjectReferenceImagesModule } from "@/components/project/ProjectReferenceImagesModule";
 import { ProjectStatusModule } from "@/components/project/ProjectStatusModule";
 import { ProjectTimelineModule } from "@/components/project/ProjectTimelineModule";
 import { ProjectRealtimeRefresh } from "@/components/realtime/ProjectRealtimeRefresh";
 import { QuoteCard } from "@/components/quote/QuoteCard";
 import { QuoteHistoryModule } from "@/components/quote/QuoteHistoryModule";
-import { QuoteTimeline } from "@/components/quote/QuoteTimeline";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
@@ -26,11 +24,7 @@ import {
 import { getDesignProofsByProjectId } from "@/lib/providers/designProofProvider";
 import { getOrderByProjectId } from "@/lib/providers/orderProvider";
 import { getProjectById } from "@/lib/providers/projectProvider";
-import {
-  getQuotesByProjectId,
-  getQuoteTimeline,
-} from "@/lib/providers/quoteProvider";
-import { listProjectImageUrls } from "@/lib/providers/storageProvider";
+import { getQuotesByProjectId } from "@/lib/providers/quoteProvider";
 import { listTimelineEventsByProjectId } from "@/lib/providers/timelineProvider";
 import { ko } from "@/messages";
 
@@ -65,22 +59,18 @@ export default async function ProjectWorkspacePage({
 
   const [
     quotesResult,
-    quoteTimeline,
     designProofsResult,
     orderResult,
     ownedItemResult,
     timelineResult,
     chatResult,
-    projectImagesResult,
   ] = await Promise.all([
     getQuotesByProjectId(id),
-    getQuoteTimeline(id),
     getDesignProofsByProjectId(id),
     getOrderByProjectId(id),
     getCustomerOwnedItemByProjectId(id),
     listTimelineEventsByProjectId(id),
     listMessagesByProjectId(id),
-    listProjectImageUrls(id),
   ]);
 
   const { quotes, source: quoteSource } = quotesResult;
@@ -95,8 +85,6 @@ export default async function ProjectWorkspacePage({
     conversationId,
     source: chatSource,
   } = chatResult;
-  const { urls: referenceImageUrls, source: imagesSource } =
-    projectImagesResult;
   const ownedItem = ownedItemDetail
     ? toProjectOwnedItemInfo(ownedItemDetail)
     : project.ownedItem;
@@ -109,8 +97,7 @@ export default async function ProjectWorkspacePage({
     orderSource === "supabase" ||
     ownedItemSource === "supabase" ||
     timelineSource === "supabase" ||
-    chatSource === "supabase" ||
-    imagesSource === "storage"
+    chatSource === "supabase"
       ? "supabase"
       : "mock";
 
@@ -166,7 +153,6 @@ export default async function ProjectWorkspacePage({
 
             <div className="min-w-0 space-y-3.5">
               <ProjectStatusModule status={project.status} />
-              <ProjectReferenceImagesModule urls={referenceImageUrls} />
               {latestQuote ? (
                 <section>
                   <h2 className="mb-2 text-[15px] font-semibold text-[#0F172A]">
@@ -179,13 +165,12 @@ export default async function ProjectWorkspacePage({
                 </section>
               ) : null}
               <QuoteHistoryModule projectId={id} quotes={quotes} />
-              <QuoteTimeline steps={quoteTimeline} />
               {order ? <ProjectOrderModule order={order} /> : null}
               <ProjectDesignProofModule proofs={designProofs} />
               <ProjectOwnedItemModule ownedItem={ownedItem} />
               <ProjectLogisticsModule logistics={project.logistics} />
               <ProjectProductionModule steps={project.productionSteps} />
-              <ProjectTimelineModule events={timeline} />
+              <ProjectTimelineModule events={timeline} variant="customer" />
             </div>
           </div>
         </Container>

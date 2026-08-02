@@ -1,6 +1,3 @@
-"use client";
-
-import { Button } from "@/components/ui/Button";
 import { ko } from "@/messages";
 
 type CustomerOwnedItemCalloutProps = {
@@ -26,14 +23,9 @@ export function CustomerOwnedItemCallout({
       <p className="mt-2.5 break-keep text-[12px] font-medium leading-relaxed text-[#92400E]">
         {ko.service.ownedItemFlowSteps.join(" → ")}
       </p>
-      <Button
-        href="/messages"
-        variant="outline"
-        size="md"
-        className="mt-3 w-full border-[#E7D3A8] bg-white text-[#92400E] hover:bg-[#FFF8EB]"
-      >
-        {ko.service.ownedItemCta}
-      </Button>
+      <p className="mt-2 break-keep text-[12px] text-[#A16207]">
+        {ko.service.ownedItemChatHint}
+      </p>
     </section>
   );
 }

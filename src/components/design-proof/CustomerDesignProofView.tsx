@@ -103,7 +103,7 @@ export function CustomerDesignProofView({
 
       <div className="flex flex-wrap gap-3">
         <Link
-          href="/messages"
+          href={`/project/${proof.projectId}`}
           className="text-[13px] font-semibold text-[#0F766E] hover:underline"
         >
           {ko.service.chatInquiry}

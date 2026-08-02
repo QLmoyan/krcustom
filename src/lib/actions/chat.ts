@@ -75,7 +75,7 @@ export async function sendProjectChatMessage(input: {
 
     const result = await sendMessage({
       conversationId,
-      body: body || (imageUrl ? "참고 이미지" : ""),
+      body: body,
       senderId: user.profile.id,
       senderRole,
       contentType: imageUrl ? "image" : "text",

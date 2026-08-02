@@ -46,8 +46,8 @@ export function ProjectOrderModule({ order }: ProjectOrderModuleProps) {
           {copy.openOrder}
         </Link>
         {needPay ? (
-          <Button href={`/checkout/${order.id}`} variant="primary" size="sm">
-            {copy.openCheckout}
+          <Button href={`/checkout/${order.id}`} variant="outline" size="sm">
+            {copy.confirmOrder}
           </Button>
         ) : null}
       </div>

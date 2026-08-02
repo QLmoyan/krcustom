@@ -73,7 +73,7 @@ export function ProjectChatMessageBubble({
             <div className="relative aspect-[4/3] w-full min-w-[180px] overflow-hidden rounded-lg bg-[#F1F5F9]">
               <Image
                 src={message.imageUrl}
-                alt={message.text || "첨부 이미지"}
+                alt={message.text || ko.project.imageAlt}
                 fill
                 sizes="280px"
                 className="object-cover"

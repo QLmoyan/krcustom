@@ -12,7 +12,6 @@ import { ServicePortfolio } from "@/components/service/ServicePortfolio";
 import { ServiceProcess } from "@/components/service/ServiceProcess";
 import { ServiceTrustPoints } from "@/components/service/ServiceTrustPoints";
 import { StoreInfoCard } from "@/components/store/StoreInfoCard";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
@@ -108,7 +107,7 @@ export default async function ServiceDetailPage({
               </div>
 
               <div className="rounded-xl bg-[#F8FAFC] px-3.5 py-3">
-                <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <dl className="grid grid-cols-2 gap-3">
                   <div>
                     <dt className="text-[11px] text-[#64748B]">
                       {ko.service.minimumPrice}
@@ -119,38 +118,10 @@ export default async function ServiceDetailPage({
                   </div>
                   <div>
                     <dt className="text-[11px] text-[#64748B]">
-                      {ko.service.minQuantity}
-                    </dt>
-                    <dd className="mt-0.5 text-[14px] font-semibold text-[#0F172A]">
-                      {service.minimumOrderQuantity ?? 1}개
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-[11px] text-[#64748B]">
                       {ko.service.productionDays}
                     </dt>
                     <dd className="mt-0.5 text-[14px] font-semibold text-[#0F172A]">
                       {service.productionDays}
-                    </dd>
-                  </div>
-                  <div className="col-span-2 sm:col-span-1">
-                    <dt className="text-[11px] text-[#64748B]">
-                      {ko.service.tradeMethods}
-                    </dt>
-                    <dd className="mt-1 flex flex-wrap gap-1">
-                      {service.supportsQuote ? (
-                        <Badge tone="accent">{ko.service.quoteAvailable}</Badge>
-                      ) : null}
-                      {service.supportsDirectPurchase ? (
-                        <Badge tone="brand">
-                          {ko.service.directPurchaseAvailable}
-                        </Badge>
-                      ) : null}
-                      {service.supportsCustomerOwnedItem ? (
-                        <Badge tone="warning">
-                          {ko.service.customerOwnedAvailable}
-                        </Badge>
-                      ) : null}
                     </dd>
                   </div>
                 </dl>

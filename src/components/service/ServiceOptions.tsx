@@ -2,32 +2,18 @@
 
 import { useState } from "react";
 import type { Service, ServiceOptionGroup } from "@/types";
-import { ko } from "@/messages";
 
 type ServiceOptionsProps = {
   service: Service;
-  uploadDisabled?: boolean;
 };
 
-export function ServiceOptions({
-  service,
-  uploadDisabled = false,
-}: ServiceOptionsProps) {
+export function ServiceOptions({ service }: ServiceOptionsProps) {
   const optionGroups = service.availableOptions ?? [];
-  const minQuantity = service.minimumOrderQuantity ?? 1;
-  const quantityTiers = service.quantityTiers;
-
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(
     () => buildDefaultSelections(optionGroups),
   );
-  const [quantity, setQuantity] = useState(minQuantity);
 
-  const matchedTierNote = quantityTiers?.find((item) => {
-    const withinMin = quantity >= item.minQuantity;
-    const withinMax =
-      item.maxQuantity === null || quantity <= item.maxQuantity;
-    return withinMin && withinMax;
-  })?.note;
+  if (optionGroups.length === 0) return null;
 
   return (
     <div className="space-y-4">
@@ -63,63 +49,6 @@ export function ServiceOptions({
           </div>
         </fieldset>
       ))}
-
-      <div>
-        <label
-          htmlFor="service-quantity"
-          className="mb-1.5 block text-[13px] font-semibold text-[#0F172A]"
-        >
-          {ko.service.quantity}
-        </label>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC]"
-            onClick={() =>
-              setQuantity((value) => Math.max(minQuantity, value - 1))
-            }
-            aria-label="수량 감소"
-            disabled={uploadDisabled}
-          >
-            −
-          </button>
-          <input
-            id="service-quantity"
-            type="number"
-            min={minQuantity}
-            value={quantity}
-            disabled={uploadDisabled}
-            onChange={(event) => {
-              const next = Number(event.target.value);
-              if (Number.isNaN(next)) return;
-              setQuantity(Math.max(minQuantity, next));
-            }}
-            className="h-9 w-16 rounded-lg border border-[#E2E8F0] px-2 text-center text-[14px] tabular-nums outline-none focus:border-[#0F766E] focus:ring-4 focus:ring-[#0F766E]/15 disabled:opacity-60"
-          />
-          <button
-            type="button"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC]"
-            onClick={() => setQuantity((value) => value + 1)}
-            aria-label="수량 증가"
-            disabled={uploadDisabled}
-          >
-            +
-          </button>
-        </div>
-        {matchedTierNote ? (
-          <p className="mt-1.5 text-[12px] text-[#0369A1]">{matchedTierNote}</p>
-        ) : null}
-        {quantityTiers && quantityTiers.length > 0 ? (
-          <ul className="mt-2 space-y-0.5 text-[12px] text-[#64748B]">
-            <li className="font-semibold text-[#0F172A]">
-              {ko.service.quantityTiers}
-            </li>
-            {quantityTiers.map((tier) => (
-              <li key={`${tier.minQuantity}-${tier.unitPrice}`}>{tier.note}</li>
-            ))}
-          </ul>
-        ) : null}
-      </div>
     </div>
   );
 }

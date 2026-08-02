@@ -45,7 +45,7 @@ export function ServiceInquirySection({ service }: ServiceInquirySectionProps) {
 
   return (
     <div className="space-y-3.5">
-      <ServiceOptions service={service} uploadDisabled={pending} />
+      <ServiceOptions service={service} />
 
       {error ? (
         <p className="break-keep text-[13px] text-[#DC2626]" role="alert">
