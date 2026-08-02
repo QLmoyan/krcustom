@@ -1,6 +1,5 @@
 export {
   formatKRW,
-  formatWon,
   formatCount,
   formatKoreanDate,
   formatKoreanDateTime,

@@ -2,11 +2,6 @@ export function formatKRW(amount: number): string {
   return `${amount.toLocaleString("ko-KR")}원`;
 }
 
-/** @deprecated Prefer formatKRW — kept for existing call sites. */
-export function formatWon(amount: number): string {
-  return formatKRW(amount);
-}
-
 export function formatCount(value: number): string {
   return value.toLocaleString("ko-KR");
 }

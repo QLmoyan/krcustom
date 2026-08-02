@@ -23,7 +23,9 @@ export function SellerLatestNotifications({
         </Link>
       </div>
       {notifications.length === 0 ? (
-        <p className="px-4 py-6 text-[13px] text-[#64748B]">{ko.admin.empty}</p>
+        <p className="px-4 py-6 text-[13px] text-[#64748B]">
+          {ko.system.emptyDescription}
+        </p>
       ) : (
         <ul className="divide-y divide-[#E2E8F0]">
           {notifications.map((item) => (

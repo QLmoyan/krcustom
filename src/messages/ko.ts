@@ -402,10 +402,6 @@ export const ko = {
     badge: "DEMO · 준비 중",
     goService: "서비스 데모로 이동",
     goHome: "홈으로",
-    loginTitle: "로그인",
-    loginDescription:
-      "인증 UI는 데모에서 연결되지 않았습니다. 판매자 데모 또는 서비스 데모로 바로 이동할 수 있습니다.",
-    loginSeller: "판매자 데모",
     profileTitle: "마이페이지",
     profileDescription:
       "마이페이지는 준비 중입니다. 주문·상담 데모를 먼저 확인해 보세요.",
@@ -413,6 +409,20 @@ export const ko = {
     customRequestTitle: "맞춤 요청 등록",
     customRequestDescription:
       "맞춤 요청 등록은 이후 스프린트에서 연결됩니다. 지금은 서비스 데모로 상담·견적·결제 흐름을 확인해 보세요.",
+    sellerComingSoonSuffix: "(준비 중)",
+    sellerComingSoonFallback: "판매자 기능",
+    sellerComingSoonDescription:
+      "이 메뉴는 데모에서 아직 별도 페이지로 열리지 않습니다. 주문·견적·시안·고객 물품 메뉴에서 데모 흐름을 이어가 주세요.",
+    sellerComingSoonAction: "판매자 대시보드",
+    sellerFeatureTitles: {
+      services: "서비스 관리",
+      messages: "메시지",
+      production: "제작 보드",
+      shipments: "반송·배송",
+      reviews: "리뷰 관리",
+      settings: "상점 설정",
+      newService: "서비스 등록",
+    },
   },
   quote: {
     builderTitle: "견적 작성기",

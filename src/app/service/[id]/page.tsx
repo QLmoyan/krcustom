@@ -18,7 +18,7 @@ import { Container } from "@/components/ui/Container";
 import { DEMO } from "@/data/demoFlow";
 import { getServiceById } from "@/data/mockServices";
 import { getStoreById } from "@/data/mockStores";
-import { formatCount, formatWon } from "@/lib/format";
+import { formatCount, formatKRW } from "@/lib/format";
 import { ko } from "@/messages";
 
 type ServiceDetailPageProps = {
@@ -114,7 +114,7 @@ export default async function ServiceDetailPage({
                       {ko.service.minimumPrice}
                     </dt>
                     <dd className="mt-0.5 text-[18px] font-bold tabular-nums text-[#0F172A]">
-                      {formatWon(service.minimumPrice)}~
+                      {formatKRW(service.minimumPrice)}~
                     </dd>
                   </div>
                   <div>

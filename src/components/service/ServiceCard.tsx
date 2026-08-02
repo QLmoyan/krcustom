@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
-import { formatWon } from "@/lib/format";
+import { formatKRW } from "@/lib/format";
 import { ko } from "@/messages";
 import type { Service } from "@/types";
 
@@ -36,7 +36,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
         </div>
 
         <p className="text-[16px] font-bold tabular-nums text-[#0F172A]">
-          {formatWon(service.minimumPrice)}~
+          {formatKRW(service.minimumPrice)}~
         </p>
 
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-[#64748B]">
